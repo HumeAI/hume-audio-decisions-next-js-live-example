@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Hume Decisions: Answering live audio",
+  title: "Hume Audio Decisions API: Next.js Example",
   description:
     "Ask the Hume Decisions API questions about live audio and see answers while it plays.",
 };
