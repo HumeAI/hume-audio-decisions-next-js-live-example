@@ -4,22 +4,16 @@ import { API_SAMPLE_RATE, resample } from "./audio";
 import type { ChunkResult } from "./recording";
 import { encodeWav } from "./wav";
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-// The route answers a failure with `{ message, body }`, where `body` is the
-// API's own error when the API rejected the request.
-function failureMessage(body: unknown, status: number): string {
-  if (isRecord(body)) {
-    if (isRecord(body.body) && typeof body.body.message === "string") {
-      return body.body.message;
-    }
-    if (typeof body.message === "string") {
-      return body.message;
-    }
-  }
-  return `The request failed with status ${String(status)}.`;
+// The route answers a failure as `{ message }`. Anything else, such as an error
+// page from the server, is reported by its status.
+async function failureMessage(response: Response): Promise<string> {
+  const body: unknown = await response.json().catch(() => null);
+  return typeof body === "object" &&
+    body !== null &&
+    "message" in body &&
+    typeof body.message === "string"
+    ? body.message
+    : `The request failed with status ${String(response.status)}.`;
 }
 
 /**
@@ -43,10 +37,11 @@ export async function askDecisions(
       body: form,
       signal,
     });
-    const body: unknown = await response.json();
-    return response.ok
-      ? { status: "answered", response: body as Decisions.DecisionsResponse }
-      : { status: "failed", message: failureMessage(body, response.status) };
+    if (!response.ok) {
+      return { status: "failed", message: await failureMessage(response) };
+    }
+    const answers = (await response.json()) as Decisions.DecisionsResponse;
+    return { status: "answered", response: answers };
   } catch (error) {
     return {
       status: "failed",

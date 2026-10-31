@@ -5,55 +5,61 @@ import {
   DecisionsTimeoutError,
 } from "@humeai/audio-decisions";
 
-function errorResponse(status: number, message: string, body?: unknown) {
-  return Response.json({ message, body }, { status });
+/** Every failure is answered as `{ message }`, which the page shows as is. */
+function failure(status: number, message: string): Response {
+  return Response.json({ message }, { status });
+}
+
+// The API's error bodies carry a message written for a person. The SDK's own
+// message also lists the status code and the whole body.
+function apiErrorMessage(error: DecisionsError): string {
+  const { body } = error;
+  return typeof body === "object" &&
+    body !== null &&
+    "message" in body &&
+    typeof body.message === "string"
+    ? body.message
+    : error.message;
 }
 
 export async function POST(request: Request): Promise<Response> {
-  let formData: FormData;
+  let form: FormData;
   try {
-    formData = await request.formData();
+    form = await request.formData();
   } catch {
-    return errorResponse(400, "Expected a multipart/form-data body.");
+    return failure(400, "Expected a multipart/form-data body.");
   }
 
-  const file = formData.get("file");
-  if (!(file instanceof File)) {
-    return errorResponse(400, "Missing the `file` part.");
+  const file = form.get("file");
+  const requestPart = form.get("request");
+  if (!(file instanceof File) || typeof requestPart !== "string") {
+    return failure(400, "Expected a `file` part and a `request` part.");
   }
 
-  const requestPart = formData.get("request");
-  if (typeof requestPart !== "string") {
-    return errorResponse(400, "Missing the `request` part.");
-  }
-
-  let decisionsRequest: unknown;
+  let decisionsRequest: Decisions.DecisionsRequest;
   try {
-    decisionsRequest = JSON.parse(requestPart);
+    decisionsRequest = JSON.parse(requestPart) as Decisions.DecisionsRequest;
   } catch {
-    return errorResponse(400, "The `request` part is not valid JSON.");
-  }
-  if (typeof decisionsRequest !== "object" || decisionsRequest === null) {
-    return errorResponse(400, "The `request` part must be a JSON object.");
+    return failure(400, "The `request` part is not valid JSON.");
   }
 
   try {
     const response = await new DecisionsClient().decisions.create({
       file,
-      request: decisionsRequest as Decisions.DecisionsRequest,
+      request: decisionsRequest,
     });
     return Response.json(response);
   } catch (error) {
     if (error instanceof DecisionsTimeoutError) {
-      return errorResponse(504, error.message);
+      return failure(504, error.message);
     }
     if (error instanceof DecisionsError) {
-      return errorResponse(error.statusCode ?? 502, error.message, error.body);
+      return failure(error.statusCode ?? 502, apiErrorMessage(error));
     }
-    // The SDK validates the request shape before sending and throws a
-    // non-DecisionsError when it does not match, so this is a client error.
+    // The SDK checks the request against the API's schema before sending it,
+    // and throws a plain error when it does not match.
     if (error instanceof Error) {
-      return errorResponse(400, error.message);
+      return failure(400, error.message);
     }
     throw error;
   }
