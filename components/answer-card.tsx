@@ -1,4 +1,4 @@
-import type { Decisions } from "@humeai/decisions";
+import type { Decisions } from "@humeai/audio-decisions";
 import { useId } from "react";
 
 import { summarizeAnswer } from "@/lib/answers";

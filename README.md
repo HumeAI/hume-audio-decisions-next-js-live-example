@@ -1,11 +1,11 @@
-# Hume Decisions: Answering live audio
+# Audio Decisions Live
 
-A Next.js example app that uses the [Hume Decisions API](https://dev.hume.ai) to answer questions about audio while it is still playing. Pick the microphone or a recording, and the app shows answers about what was just heard as the audio goes on.
+A Next.js example that answers questions about live microphone audio with the [Audio Decisions API](https://dev.hume.ai/decisions/docs/overview). The app sends every 5 seconds of audio with your questions and shows each set of answers on a timeline under the waveform. The [cookbook guide](https://dev.hume.ai/decisions/cookbooks/answering-live-audio) walks through the code.
 
 ## Prerequisites
 
 1. Node.js 24 (the version in `.nvmrc`). With nvm, run `nvm use` in the project directory.
-2. A Hume API key, available from the [Hume platform](https://platform.hume.ai).
+2. An API key from the [Hume platform](https://platform.hume.ai).
 
 ## Getting started
 
@@ -21,7 +21,7 @@ A Next.js example app that uses the [Hume Decisions API](https://dev.hume.ai) to
    cp .env.example .env.local
    ```
 
-   Then set `HUME_API_KEY` in `.env.local`.
+   Then set `HUME_API_KEY` in `.env.local`. A `HUME_API_KEY` exported in your shell takes precedence over the file.
 
 3. Start the development server:
 
@@ -33,18 +33,19 @@ A Next.js example app that uses the [Hume Decisions API](https://dev.hume.ai) to
 
 ## Using the app
 
-1. Pick questions from the question library, or edit the questions JSON directly. Your questions and context are saved in the browser.
-2. Optionally describe the setting in **Context**. The model reads it alongside the audio, so it can change the answers.
-3. Click **Start microphone**, or choose an audio file and click **Play recording**. A recording plays aloud in real time. Any format your browser can play works.
-4. Every 5 seconds the app sends the audio just heard to the API. Each response shows a readable summary of every answer, the raw JSON, how long the request took, and a player for the audio that was sent.
+1. Press **Record** and speak. The three default questions are enough to see the app work.
+2. Every 5 seconds of audio is sent with the questions. Answers appear on the timeline as they arrive, and the cards below show the newest answers in full.
+3. Press **Stop**, then click a chunk or the waveform to see that chunk's answers. **Play** replays the recording from the playhead.
+4. Add, edit or remove questions and edit the optional **Context** between recordings. They are kept for the browser tab, so a refresh keeps them.
+
+All questions in a request are answered together, so adding, removing or rewording one question can change the answers to the others.
 
 ## How it works
 
-1. An [AudioWorklet](https://developer.mozilla.org/docs/Web/API/AudioWorklet) in `public/pcm-chunker-worklet.js` collects the audio into 5-second chunks.
-2. The browser encodes each chunk as a WAV file and posts it, with the questions and context, to the `app/api/decisions` route.
-3. The route calls `client.decisions.create` from the `@humeai/decisions` SDK, which reads `HUME_API_KEY` on the server, and returns the response.
-
-Chunks are sent as soon as they are ready, without waiting for earlier responses. All questions in a request are answered together, so adding, removing, or reordering questions can change the other answers. The questions are locked while audio is being sent so that answers within one session stay comparable.
+1. `hooks/use-recorder.ts` opens the microphone with `lib/microphone.ts`. An [AudioWorklet](https://developer.mozilla.org/docs/Web/API/AudioWorklet) in `public/audio-block-worklet.js` delivers the audio in blocks of 125 ms, which also draw the waveform.
+2. Every 5 seconds of audio becomes a chunk. `lib/decisions.ts` resamples it to 16 kHz, encodes it as a WAV file with `lib/wav.ts`, and posts it with the questions and context to the `app/api/decisions` route. Chunks are sent as soon as they are ready, without waiting for earlier answers.
+3. The route calls `client.decisions.create` from the `@humeai/audio-decisions` SDK, which reads `HUME_API_KEY` on the server, so the key never reaches the browser.
+4. Each answer lands on its chunk in `components/answer-timeline.tsx`, and `components/answer-card.tsx` shows the full answer. `hooks/use-playback.ts` replays the recording.
 
 ## License
 

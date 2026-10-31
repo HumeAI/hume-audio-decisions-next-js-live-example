@@ -13,7 +13,8 @@
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run build"
   },
   "dependencies": {
-    "@humeai/decisions": "file:../hume-decisions-typescript-sdk",
+    "@humeai/audio-decisions": "file:../hume-decisions-typescript-sdk",
+    "@primer/octicons-react": "19.42.0",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0"

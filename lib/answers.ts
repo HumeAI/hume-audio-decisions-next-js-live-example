@@ -1,4 +1,4 @@
-import type { Decisions } from "@humeai/decisions";
+import type { Decisions } from "@humeai/audio-decisions";
 
 /** A label for an answer that is short enough for a timeline cell. */
 export function summarizeAnswer(answer: Decisions.Answer): string {

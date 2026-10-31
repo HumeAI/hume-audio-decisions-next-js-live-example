@@ -3,7 +3,7 @@ import {
   DecisionsClient,
   DecisionsError,
   DecisionsTimeoutError,
-} from "@humeai/decisions";
+} from "@humeai/audio-decisions";
 
 function errorResponse(status: number, message: string, body?: unknown) {
   return Response.json({ message, body }, { status });

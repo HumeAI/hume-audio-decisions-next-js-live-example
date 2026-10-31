@@ -1,10 +1,11 @@
-import type { Decisions } from "@humeai/decisions";
+import type { Decisions } from "@humeai/audio-decisions";
 
 import type { NamedQuestion } from "./questions";
 
 export const CHUNK_MS = 5_000;
 
-export const PEAKS_PER_SECOND = 8;
+/** How often captured audio arrives, which is also one bar of the waveform. */
+export const BLOCKS_PER_SECOND = 8;
 
 export type ChunkResult =
   | { status: "pending" }
@@ -24,9 +25,13 @@ export interface Recording {
    * questions being edited for the next recording change.
    */
   questions: NamedQuestion[];
+  /** The microphone's own rate, which the captured audio keeps for playback. */
+  sampleRate: number;
+  /** The captured audio as blocks of mono samples. */
+  audio: Float32Array[];
+  /** The loudness of each block, from 0 to 1. */
+  levels: number[];
   chunks: Chunk[];
-  /** The loudness of each slice of audio, from 0 to 1. */
-  peaks: number[];
   durationMs: number;
 }
 

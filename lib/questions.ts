@@ -1,4 +1,4 @@
-import type { Decisions } from "@humeai/decisions";
+import type { Decisions } from "@humeai/audio-decisions";
 
 // Moment questions answer with time ranges rather than a single value, so
 // they have no place on a timeline of 5-second answers.
@@ -21,13 +21,12 @@ export const QUESTION_TYPES: readonly QuestionType[] = [
   "score",
 ];
 
-// The API accepts up to 100 questions with up to 100 options each. This
-// example keeps to 4 of each so every answer fits on the timeline.
-export const MAX_QUESTIONS = 4;
+// The API rejects a choice or score question with fewer options.
 export const MIN_OPTIONS = 2;
-export const MAX_OPTIONS = 4;
 
 export const DEFAULT_CONTEXT = "Live microphone audio of one person speaking.";
+
+export const MAX_CONTEXT_LENGTH = 1_000;
 
 export const DEFAULT_QUESTIONS: NamedQuestion[] = [
   {
@@ -86,4 +85,17 @@ export function buildQuestion(
     case "score":
       return { type, instructions, criteria: options };
   }
+}
+
+/** The `request` part sent with every chunk of a recording. */
+export function buildRequest(
+  questions: NamedQuestion[],
+  context: string,
+): Decisions.DecisionsRequest {
+  return {
+    context: context.trim() || undefined,
+    questions: Object.fromEntries(
+      questions.map(({ id, question }) => [id, question]),
+    ),
+  };
 }

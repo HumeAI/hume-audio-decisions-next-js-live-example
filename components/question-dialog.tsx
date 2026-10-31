@@ -2,7 +2,6 @@ import { type SubmitEvent, useId, useState } from "react";
 
 import {
   buildQuestion,
-  MAX_OPTIONS,
   MIN_OPTIONS,
   type NamedQuestion,
   QUESTION_TYPES,
@@ -200,12 +199,11 @@ export function QuestionDialog({
                   Each {optionNoun} must be different.
                 </span>
               ) : (
-                `${String(MIN_OPTIONS)} to ${String(MAX_OPTIONS)} ${optionNoun}s.`
+                `At least ${String(MIN_OPTIONS)} ${optionNoun}s.`
               )}
             </p>
             <div className="mt-3">
               <Button
-                disabled={options.length >= MAX_OPTIONS}
                 onClick={() => {
                   setOptions((current) => [...current, optionField("")]);
                 }}

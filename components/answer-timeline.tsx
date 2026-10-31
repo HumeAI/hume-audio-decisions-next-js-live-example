@@ -18,7 +18,8 @@ interface AnswerTimelineProps {
   /** The chunk whose answers are shown below the timeline. */
   currentChunk: Chunk | undefined;
   playheadMs: number | null;
-  onSelectChunk: (chunk: Chunk) => void;
+  /** Moves the playhead to a chunk. Leave it out to turn choosing off. */
+  onSelectChunk?: (chunk: Chunk) => void;
 }
 
 export function AnswerTimeline({
@@ -57,11 +58,12 @@ export function AnswerTimeline({
             >
               <button
                 type="button"
+                disabled={!onSelectChunk}
                 onClick={() => {
-                  onSelectChunk(chunk);
+                  onSelectChunk?.(chunk);
                 }}
                 aria-current={chunk === currentChunk ? "time" : undefined}
-                className="flex h-full w-full flex-col border-r border-border text-left transition-colors hover:bg-subtle focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-foreground aria-[current=time]:bg-subtle"
+                className="flex h-full w-full flex-col border-r border-border text-left transition-colors enabled:hover:bg-subtle focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-foreground aria-[current=time]:bg-subtle"
               >
                 <span
                   className={`${TIME_ROW_CLASS_NAME} px-2 text-xs text-muted tabular-nums`}

@@ -1,15 +1,30 @@
+import {
+  DotFillIcon,
+  PauseIcon,
+  PlayIcon,
+  SquareFillIcon,
+} from "@primer/octicons-react";
 import { useState } from "react";
 
+import type { RecorderStatus } from "@/hooks/use-recorder";
+import { useStoredState } from "@/hooks/use-stored-state";
 import { formatTime } from "@/lib/format-time";
 
 import { Button } from "./button";
 import { NewRecordingDialog } from "./new-recording-dialog";
 
+function formatSeconds(ms: number): string {
+  return formatTime(Math.floor(ms / 1000) * 1000);
+}
+
 interface RecordingControlsProps {
-  isRecording: boolean;
+  status: RecorderStatus;
   hasRecording: boolean;
   isPlaying: boolean;
-  elapsedMs: number;
+  durationMs: number;
+  /** Where the playhead is, once the recording has been played or sought. */
+  positionMs: number | null;
+  error: string | null;
   /** Starts a new recording, replacing any earlier one. */
   onRecord: () => void;
   onStop: () => void;
@@ -18,17 +33,24 @@ interface RecordingControlsProps {
 }
 
 export function RecordingControls({
-  isRecording,
+  status,
   hasRecording,
   isPlaying,
-  elapsedMs,
+  durationMs,
+  positionMs,
+  error,
   onRecord,
   onStop,
   onTogglePlayback,
   onClear,
 }: RecordingControlsProps) {
   const [isConfirming, setIsConfirming] = useState(false);
-  const [skipConfirmation, setSkipConfirmation] = useState(false);
+  const [skipConfirmation, setSkipConfirmation] = useStoredState(
+    "localStorage",
+    "audio-decisions-live:skip-new-recording-confirmation",
+    false,
+  );
+  const isRecording = status === "recording";
 
   function handleRecord() {
     if (hasRecording && !skipConfirmation) {
@@ -42,13 +64,17 @@ export function RecordingControls({
     <div className="flex flex-wrap items-center gap-3">
       {isRecording ? (
         <Button variant="primary" onClick={onStop}>
-          <span aria-hidden className="size-2.5 rounded-xs bg-current" />
+          <SquareFillIcon />
           Stop
         </Button>
       ) : (
-        <Button variant="primary" onClick={handleRecord}>
-          <span aria-hidden className="size-2.5 rounded-full bg-red-500" />
-          Record
+        <Button
+          variant="primary"
+          disabled={status === "starting"}
+          onClick={handleRecord}
+        >
+          <DotFillIcon className="text-red-500" />
+          {status === "starting" ? "Starting" : "Record"}
         </Button>
       )}
 
@@ -70,11 +96,22 @@ export function RecordingControls({
             className="size-2 animate-pulse rounded-full bg-red-500 motion-reduce:animate-none"
           />
         )}
-        {formatTime(Math.floor(elapsedMs / 1000) * 1000)}
+        {positionMs !== null && !isRecording && (
+          <span className="text-muted">{formatSeconds(positionMs)} /</span>
+        )}
+        {formatSeconds(durationMs)}
       </p>
       <p role="status" className="sr-only">
         {isRecording ? "Recording" : ""}
       </p>
+      {error && (
+        <p
+          role="alert"
+          className="basis-full text-sm text-red-600 dark:text-red-400"
+        >
+          {error}
+        </p>
+      )}
 
       {isConfirming && (
         <NewRecordingDialog
@@ -89,21 +126,5 @@ export function RecordingControls({
         />
       )}
     </div>
-  );
-}
-
-function PlayIcon() {
-  return (
-    <svg aria-hidden viewBox="0 0 10 10" className="size-2.5 fill-current">
-      <path d="M1 0.5v9l8-4.5z" />
-    </svg>
-  );
-}
-
-function PauseIcon() {
-  return (
-    <svg aria-hidden viewBox="0 0 10 10" className="size-2.5 fill-current">
-      <path d="M1 0.5h3v9H1zM6 0.5h3v9H6z" />
-    </svg>
   );
 }

@@ -23,7 +23,7 @@ export function Modal({ title, onDismiss, children }: ModalProps) {
       ref={dialogRef}
       aria-labelledby={titleId}
       onClose={onDismiss}
-      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-border bg-background p-6 text-foreground backdrop:bg-black/50"
+      className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-2xl border border-border bg-background p-6 text-foreground backdrop:bg-black/50"
     >
       <h2 id={titleId} className="text-lg font-semibold tracking-tight">
         {title}
