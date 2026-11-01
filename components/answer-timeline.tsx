@@ -19,8 +19,8 @@ interface AnswerTimelineProps {
   /** The chunk whose answers are shown below the timeline. */
   currentChunk: Chunk | undefined;
   playheadMs: number | null;
-  /** Moves the playhead to a chunk. Leave it out to turn choosing off. */
-  onSelectChunk?: (chunk: Chunk) => void;
+  /** Moves the playhead. Leave it out to turn seeking off. */
+  onSeek?: (ms: number) => void;
 }
 
 export function AnswerTimeline({
@@ -29,7 +29,7 @@ export function AnswerTimeline({
   durationMs,
   currentChunk,
   playheadMs,
-  onSelectChunk,
+  onSeek,
 }: AnswerTimelineProps) {
   return (
     <div className="flex">
@@ -63,9 +63,9 @@ export function AnswerTimeline({
                     clips anything outside a chunk. */}
                 <button
                   type="button"
-                  disabled={!onSelectChunk}
+                  disabled={!onSeek}
                   onClick={() => {
-                    onSelectChunk?.(chunk);
+                    onSeek?.(chunk.startMs);
                   }}
                   aria-current={isCurrent ? "time" : undefined}
                   className="relative flex h-full w-full flex-col border-r text-left transition-colors enabled:hover:bg-subtle focus-visible:-outline-offset-2 aria-[current=time]:bg-subtle"

@@ -4,7 +4,7 @@ import { usePlayback } from "@/hooks/use-playback";
 import { useRecorder } from "@/hooks/use-recorder";
 import { useStoredState } from "@/hooks/use-stored-state";
 import { DEFAULT_CONTEXT, DEFAULT_QUESTIONS } from "@/lib/questions";
-import { CHUNK_MS, latestSettledChunk } from "@/lib/recording";
+import { latestSettledChunk } from "@/lib/recording";
 
 import { AnswerPanel } from "./answer-panel";
 import { AnswerTimeline } from "./answer-timeline";
@@ -32,16 +32,15 @@ export function LiveDecisions() {
   const { recording } = recorder;
   const playback = usePlayback(recording?.audio ?? null);
   const isCapturing = recorder.status !== "idle";
+  const chunks = recording?.chunks ?? [];
+  const durationMs = recording?.durationMs ?? 0;
 
-  // While recording, the playhead marks the live edge and the newest answers
-  // are shown. Afterwards, the answers follow the playhead.
+  // While recording, the playhead marks the live edge, so the newest answers
+  // show.
   const playheadMs = isCapturing
     ? (recording?.durationMs ?? null)
     : playback.playheadMs;
-  const currentChunk = latestSettledChunk(
-    recording?.chunks ?? [],
-    isCapturing ? Infinity : (playback.playheadMs ?? Infinity),
-  );
+  const currentChunk = latestSettledChunk(chunks, playheadMs ?? Infinity);
 
   function record() {
     playback.reset();
@@ -73,7 +72,7 @@ export function LiveDecisions() {
             status={recorder.status}
             hasRecording={recording !== null}
             isPlaying={playback.isPlaying}
-            durationMs={recording?.durationMs ?? 0}
+            durationMs={durationMs}
             positionMs={playback.playheadMs}
             error={recorder.error}
             onRecord={record}
@@ -82,30 +81,23 @@ export function LiveDecisions() {
           />
         </div>
 
-        {/* Before the first recording, the rows follow the questions being
-            edited, so the timeline keeps its shape when recording starts. */}
         <TimelineScroller>
           <Waveform
             levels={recording?.levels ?? []}
-            durationMs={recording?.durationMs ?? 0}
+            durationMs={durationMs}
             playheadMs={playheadMs}
             followPlayhead={isCapturing || playback.isPlaying}
             onSeek={isCapturing ? undefined : playback.seek}
-            emptyText={`Press Record and speak. Every ${String(CHUNK_MS / 1000)} seconds of audio is sent with your questions.`}
           />
+          {/* Before the first recording, the rows follow the questions being
+              edited, so the timeline keeps its shape when recording starts. */}
           <AnswerTimeline
             questions={recording?.questions ?? questions}
-            chunks={recording?.chunks ?? []}
-            durationMs={recording?.durationMs ?? 0}
+            chunks={chunks}
+            durationMs={durationMs}
             currentChunk={currentChunk}
             playheadMs={playheadMs}
-            onSelectChunk={
-              isCapturing
-                ? undefined
-                : (chunk) => {
-                    playback.seek(chunk.startMs);
-                  }
-            }
+            onSeek={isCapturing ? undefined : playback.seek}
           />
         </TimelineScroller>
 

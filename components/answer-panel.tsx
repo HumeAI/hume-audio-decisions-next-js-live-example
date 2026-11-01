@@ -1,6 +1,6 @@
 import type { Decisions } from "@humeai/audio-decisions";
 import { CheckIcon, CopyIcon } from "@primer/octicons-react";
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 
 import { formatTime } from "@/lib/format-time";
 import type { NamedQuestion } from "@/lib/questions";
@@ -83,25 +83,14 @@ function CallDetails({ response }: { response: Decisions.DecisionsResponse }) {
       <p className="tabular-nums">
         {response.received.inputTokens.toLocaleString()} input tokens
       </p>
-      <CopyRunId runId={response.runId} />
+      {/* The key resets the check mark when another chunk's answers show. */}
+      <CopyRunId key={response.runId} runId={response.runId} />
     </div>
   );
 }
 
 function CopyRunId({ runId }: { runId: string }) {
   const [isCopied, setIsCopied] = useState(false);
-
-  useEffect(() => {
-    if (!isCopied) {
-      return;
-    }
-    const timeout = setTimeout(() => {
-      setIsCopied(false);
-    }, 2000);
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [isCopied]);
 
   return (
     <>
@@ -111,6 +100,9 @@ function CopyRunId({ runId }: { runId: string }) {
         onClick={() => {
           void navigator.clipboard.writeText(runId).then(() => {
             setIsCopied(true);
+            setTimeout(() => {
+              setIsCopied(false);
+            }, 2000);
           });
         }}
         className="flex items-center gap-1.5 transition-colors hover:text-foreground"

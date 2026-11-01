@@ -1,10 +1,9 @@
 import { type LiveQuestion, questionOptions } from "@/lib/questions";
 
 /**
- * The answers a question allows: choice options as chips, a noul question as
- * a yes and no pair, and score levels as chips numbered the way scores count
- * them. Chips wrap, so long options and many levels stay readable in a narrow
- * panel.
+ * The answers a question allows. Score levels are numbered from 0, the way
+ * scores count them, and chips wrap so long options and many levels stay
+ * readable in a narrow panel.
  */
 export function QuestionOptions({ question }: { question: LiveQuestion }) {
   switch (question.type) {

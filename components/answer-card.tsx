@@ -120,7 +120,6 @@ function Headline({ value, detail }: { value: string; detail: string }) {
   );
 }
 
-/** Each option with its probability, emphasizing the one the answer names. */
 function Distribution({
   items,
   emphasized,

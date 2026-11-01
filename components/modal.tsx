@@ -1,4 +1,12 @@
-import { type ReactNode, useEffect, useId, useRef } from "react";
+import { type ReactNode, useId, useRef } from "react";
+
+// Only showModal() traps focus and makes the rest of the page inert. The
+// `open` attribute shows the dialog without either. This ref callback lives
+// outside the component because React calls an inline one again on every
+// render.
+function showModal(dialog: HTMLDialogElement | null) {
+  dialog?.showModal();
+}
 
 interface ModalProps {
   title: string;
@@ -9,22 +17,15 @@ interface ModalProps {
 
 /** A modal dialog that opens when it mounts. */
 export function Modal({ title, onDismiss, children }: ModalProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const pressedBackdropRef = useRef(false);
   const titleId = useId();
-
-  // Only showModal() traps focus and makes the rest of the page inert. The
-  // `open` attribute shows the dialog without either.
-  useEffect(() => {
-    dialogRef.current?.showModal();
-  }, []);
 
   // The content fills the dialog, so a press on the dialog element itself is
   // a press on the backdrop. A press that starts inside, such as selecting
   // text, and ends outside does not count.
   return (
     <dialog
-      ref={dialogRef}
+      ref={showModal}
       aria-labelledby={titleId}
       onClose={onDismiss}
       onPointerDown={(event) => {
@@ -35,7 +36,7 @@ export function Modal({ title, onDismiss, children }: ModalProps) {
           pressedBackdropRef.current &&
           event.target === event.currentTarget
         ) {
-          dialogRef.current?.close();
+          event.currentTarget.close();
         }
       }}
       className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border bg-background text-foreground backdrop:bg-black/50"

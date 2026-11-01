@@ -16,8 +16,6 @@ interface WaveformProps {
   followPlayhead: boolean;
   /** Moves the playhead. Leave it out to turn seeking off. */
   onSeek?: (ms: number) => void;
-  /** Shown in place of the waveform until there is audio. */
-  emptyText: string;
 }
 
 export function Waveform({
@@ -26,7 +24,6 @@ export function Waveform({
   playheadMs,
   followPlayhead,
   onSeek,
-  emptyText,
 }: WaveformProps) {
   const width = toPixels(durationMs);
   // The view box is 100 units tall and stretches to the element's height, so a
@@ -53,7 +50,10 @@ export function Waveform({
         Audio
       </div>
       {durationMs === 0 ? (
-        <p className="flex items-center px-3 text-sm text-muted">{emptyText}</p>
+        <p className="flex items-center px-3 text-sm text-muted">
+          Press Record and speak. Every {CHUNK_MS / 1000} seconds of audio is
+          sent with your questions.
+        </p>
       ) : (
         <div
           className="relative h-full shrink-0 has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-foreground"
