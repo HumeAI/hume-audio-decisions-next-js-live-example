@@ -2,7 +2,7 @@ import { type ReactNode, useEffect, useId, useRef } from "react";
 
 interface ModalProps {
   title: string;
-  /** Called when the person presses Escape. */
+  /** Called when the person presses Escape or clicks outside the dialog. */
   onDismiss: () => void;
   children: ReactNode;
 }
@@ -10,6 +10,7 @@ interface ModalProps {
 /** A modal dialog that opens when it mounts. */
 export function Modal({ title, onDismiss, children }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const pressedBackdropRef = useRef(false);
   const titleId = useId();
 
   // Only showModal() traps focus and makes the rest of the page inert. The
@@ -18,17 +19,33 @@ export function Modal({ title, onDismiss, children }: ModalProps) {
     dialogRef.current?.showModal();
   }, []);
 
+  // The content fills the dialog, so a press on the dialog element itself is
+  // a press on the backdrop. A press that starts inside, such as selecting
+  // text, and ends outside does not count.
   return (
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
       onClose={onDismiss}
-      className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-2xl border border-border bg-background p-6 text-foreground backdrop:bg-black/50"
+      onPointerDown={(event) => {
+        pressedBackdropRef.current = event.target === event.currentTarget;
+      }}
+      onClick={(event) => {
+        if (
+          pressedBackdropRef.current &&
+          event.target === event.currentTarget
+        ) {
+          dialogRef.current?.close();
+        }
+      }}
+      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-border bg-background text-foreground backdrop:bg-black/50"
     >
-      <h2 id={titleId} className="text-lg font-semibold tracking-tight">
-        {title}
-      </h2>
-      {children}
+      <div className="max-h-[calc(100dvh-2rem)] overflow-y-auto p-6">
+        <h2 id={titleId} className="text-lg font-semibold tracking-tight">
+          {title}
+        </h2>
+        {children}
+      </div>
     </dialog>
   );
 }

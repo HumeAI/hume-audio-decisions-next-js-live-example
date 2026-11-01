@@ -44,19 +44,17 @@ export function Waveform({
   );
 
   return (
-    <div className="sticky top-0 z-30 flex border-b border-border bg-background">
+    <div className="sticky top-0 z-30 flex h-[clamp(5rem,18dvh,10rem)] border-b border-border bg-background">
       <div
-        className={`${LABEL_COLUMN_CLASS_NAME} px-3 text-sm leading-20 font-medium`}
+        className={`${LABEL_COLUMN_CLASS_NAME} flex items-center px-3 text-sm font-medium`}
       >
         Audio
       </div>
       {durationMs === 0 ? (
-        <p className="flex h-20 items-center px-3 text-sm text-muted">
-          {emptyText}
-        </p>
+        <p className="flex items-center px-3 text-sm text-muted">{emptyText}</p>
       ) : (
         <div
-          className="relative h-20 shrink-0 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-foreground"
+          className="relative h-full shrink-0 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-foreground"
           style={{
             width,
             // A line at the end of every chunk, in line with the edges of the

@@ -40,8 +40,7 @@ export function ContextField({
         className="w-full resize-none rounded-lg border border-border bg-transparent px-3 py-2 text-sm disabled:opacity-60"
       />
       <p id={`${ids}-hint`} className="hidden text-sm text-muted md:block">
-        Optional. Describes the setting, which the model reads with the audio,
-        so it can change the answers.
+        Optional. Describes the setting, which the model reads with the audio.
       </p>
     </div>
   );

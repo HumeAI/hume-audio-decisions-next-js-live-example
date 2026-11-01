@@ -37,6 +37,12 @@
     outline: 2px solid var(--foreground);
     outline-offset: 2px;
   }
+
+  /* Tailwind's preflight gives buttons the default cursor. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 body {

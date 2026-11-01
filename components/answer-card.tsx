@@ -4,8 +4,6 @@ import { useId } from "react";
 import { nearestLevel, summarizeAnswer } from "@/lib/answers";
 import type { NamedQuestion } from "@/lib/questions";
 
-import { TypePill } from "./type-pill";
-
 function percent(share: number): string {
   return `${String(Math.round(share * 100))}%`;
 }
@@ -24,14 +22,16 @@ export function AnswerCard({ question, answer }: AnswerCardProps) {
   return (
     <article
       aria-labelledby={titleId}
-      className="row-span-3 grid grid-rows-subgrid gap-4 rounded-xl border border-border p-4"
+      className="row-span-3 grid grid-rows-subgrid gap-5 rounded-xl border border-border p-5"
     >
-      <header className="space-y-1">
-        <div className="flex items-center justify-between gap-3">
-          <h3 id={titleId} className="truncate text-sm font-medium">
+      <header className="space-y-1.5">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 id={titleId} className="truncate font-medium">
             {question.id}
           </h3>
-          <TypePill type={question.question.type} />
+          <p className="shrink-0 text-xs text-muted">
+            {question.question.type}
+          </p>
         </div>
         <p className="line-clamp-2 text-sm text-muted">
           {question.question.instructions}
@@ -48,20 +48,25 @@ export function AnswerCard({ question, answer }: AnswerCardProps) {
 
 function AnswerDetail({ answer }: { answer: Decisions.Answer }) {
   switch (answer.type) {
-    case "noul":
+    case "noul": {
+      const value = summarizeAnswer(answer);
+      const share = value === "Yes" ? answer.noul : 1 - answer.noul;
       return (
         <>
           <Headline
-            value={summarizeAnswer(answer)}
-            detail={`${percent(answer.noul)} of raters would answer yes`}
+            value={value}
+            detail={`${percent(share)} of raters would answer ${value.toLowerCase()}`}
           />
-          {/* As tall as one row of a distribution, so this bar lines up with
-              the first bar of the cards beside it. */}
-          <div className="grid h-4 items-center">
-            <Bar share={answer.noul} emphasized />
-          </div>
+          <Distribution
+            items={[
+              ["Yes", answer.noul],
+              ["No", 1 - answer.noul],
+            ]}
+            emphasized={value}
+          />
         </>
       );
+    }
     case "choice":
       return (
         <>
@@ -84,8 +89,8 @@ function AnswerDetail({ answer }: { answer: Decisions.Answer }) {
       return (
         <>
           <Headline
-            value={answer.score.toFixed(1)}
-            unit={`of ${String(levels.length - 1)}`}
+            value={nearestLevel(answer) ?? answer.score.toFixed(1)}
+            unit={`${answer.score.toFixed(1)} of ${String(levels.length - 1)}`}
             detail={`Confidence ${answer.confidence.toFixed(2)}`}
           />
           <Distribution
@@ -115,13 +120,15 @@ function Headline({
 }) {
   return (
     <div>
-      <p className="text-2xl font-semibold tracking-tight">
+      <p className="text-3xl font-semibold tracking-tight">
         {value}
         {unit && (
-          <span className="ml-1.5 text-sm font-normal text-muted">{unit}</span>
+          <span className="ml-2 text-base font-normal tracking-normal text-muted">
+            {unit}
+          </span>
         )}
       </p>
-      <p className="text-xs text-muted tabular-nums">{detail}</p>
+      <p className="mt-1 text-sm text-muted tabular-nums">{detail}</p>
     </div>
   );
 }
@@ -135,13 +142,13 @@ function Distribution({
   emphasized: string | undefined;
 }) {
   return (
-    <ul className="space-y-1.5">
+    <ul className="space-y-2.5">
       {items.map(([label, share]) => {
         const isEmphasized = label === emphasized;
         return (
           <li
             key={label}
-            className="grid grid-cols-[minmax(0,5.5rem)_1fr_2.5rem] items-center gap-2 text-xs"
+            className="grid grid-cols-[minmax(0,7rem)_1fr_3rem] items-center gap-3 text-sm"
           >
             <span
               className={`truncate ${isEmphasized ? "font-medium" : "text-muted"}`}
@@ -163,7 +170,7 @@ function Bar({ share, emphasized }: { share: number; emphasized: boolean }) {
   return (
     <span
       aria-hidden
-      className="block h-1.5 overflow-hidden rounded-full bg-border"
+      className="block h-2 overflow-hidden rounded-full bg-border"
     >
       <span
         className={`block h-full rounded-full ${emphasized ? "bg-foreground" : "bg-muted/50"}`}

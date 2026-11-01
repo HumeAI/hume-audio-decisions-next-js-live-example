@@ -56,7 +56,7 @@ function AnswerBody({ chunk, questions }: AnswerPanelProps) {
     case "answered": {
       const { answers } = chunk.result.response;
       return (
-        <div className="grid min-h-0 auto-rows-min grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-3 overflow-y-auto">
+        <div className="grid min-h-0 auto-rows-min grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-4 overflow-y-auto">
           {questions.map((question) => (
             <AnswerCard
               key={question.id}

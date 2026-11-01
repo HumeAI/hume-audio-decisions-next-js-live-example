@@ -1,10 +1,10 @@
 import { useId, useState } from "react";
 
-import { type NamedQuestion, questionOptions } from "@/lib/questions";
+import type { NamedQuestion } from "@/lib/questions";
 
 import { Button } from "./button";
 import { QuestionDialog } from "./question-dialog";
-import { TypePill } from "./type-pill";
+import { QuestionOptions } from "./question-options";
 
 interface QuestionPanelProps {
   questions: NamedQuestion[];
@@ -40,45 +40,42 @@ export function QuestionPanel({
       </h2>
 
       <ul className="divide-y divide-border rounded-xl border border-border md:mt-3">
-        {questions.map(({ id, question }, index) => {
-          const options = questionOptions(question);
-          return (
-            <li key={id} className="space-y-1 p-3">
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="truncate text-sm font-medium">{id}</h3>
-                <TypePill type={question.type} />
-              </div>
-              <p className="text-sm">{question.instructions}</p>
-              {options.length > 0 && (
-                <p className="text-sm text-muted">{options.join(", ")}</p>
-              )}
-              <div className="flex gap-4 pt-1">
-                <Button
-                  variant="text"
-                  disabled={disabled}
-                  onClick={() => {
-                    setEditing(index);
-                  }}
-                  aria-label={`Edit ${id}`}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="text"
-                  disabled={disabled || questions.length === 1}
-                  onClick={() => {
-                    onQuestionsChange(
-                      questions.filter((_, other) => other !== index),
-                    );
-                  }}
-                  aria-label={`Remove ${id}`}
-                >
-                  Remove
-                </Button>
-              </div>
-            </li>
-          );
-        })}
+        {questions.map(({ id, question }, index) => (
+          <li key={id} className="space-y-1 p-3">
+            <div className="flex items-baseline justify-between gap-3">
+              <h3 className="truncate text-sm font-medium">{id}</h3>
+              <p className="shrink-0 text-xs text-muted">{question.type}</p>
+            </div>
+            <p className="text-sm">{question.instructions}</p>
+            <div className="pt-1">
+              <QuestionOptions question={question} />
+            </div>
+            <div className="flex gap-4 pt-1">
+              <Button
+                variant="text"
+                disabled={disabled}
+                onClick={() => {
+                  setEditing(index);
+                }}
+                aria-label={`Edit ${id}`}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="text"
+                disabled={disabled || questions.length === 1}
+                onClick={() => {
+                  onQuestionsChange(
+                    questions.filter((_, other) => other !== index),
+                  );
+                }}
+                aria-label={`Remove ${id}`}
+              >
+                Remove
+              </Button>
+            </div>
+          </li>
+        ))}
       </ul>
 
       <div className="mt-3 flex items-center gap-3">
