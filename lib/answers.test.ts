@@ -3,6 +3,10 @@ import { describe, expect, it } from "vitest";
 import { summarizeAnswer } from "./answers";
 
 describe("summarizeAnswer", () => {
+  it("gives a yes or no answer as the share of raters who would say yes", () => {
+    expect(summarizeAnswer({ type: "noul", noul: 0.416 })).toBe("42% yes");
+  });
+
   it("names the level most raters would choose rather than the mean", () => {
     const summary = summarizeAnswer({
       type: "score",

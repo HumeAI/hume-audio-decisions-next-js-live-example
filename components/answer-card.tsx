@@ -1,7 +1,7 @@
 import type { Decisions } from "@humeai/audio-decisions";
 import { useId } from "react";
 
-import { percent, topLevel } from "@/lib/answers";
+import { percent, type ScoreLevel, scoreLevels } from "@/lib/answers";
 import {
   type LiveQuestion,
   type NamedQuestion,
@@ -63,7 +63,7 @@ function AnswerDetail({
         <>
           <Headline
             value={percent(answer.noul)}
-            details={["of raters would answer yes"]}
+            detail="of raters would answer yes"
           />
           <Distribution
             items={[
@@ -79,7 +79,7 @@ function AnswerDetail({
         <>
           <Headline
             value={answer.choice}
-            details={[agreement(answer.confidence)]}
+            detail={agreement(answer.confidence)}
           />
           {/* Options follow the question's order, which is the order the
               model reads them in. */}
@@ -93,23 +93,11 @@ function AnswerDetail({
         </>
       );
     case "score": {
-      // Levels are keyed by index, so they are ordered by number rather than
-      // by the key order of the JSON object.
-      const levels = Object.keys(answer.legend).sort(
-        (a, b) => Number(a) - Number(b),
-      );
-      const level = topLevel(answer);
+      const { levels, top } = scoreLevels(answer);
       return (
         <>
-          <Headline value={level} details={[agreement(answer.confidence)]} />
-          <ScoreColumns
-            levels={levels.map((index) => [
-              answer.legend[index] ?? index,
-              answer.probabilities[index] ?? 0,
-            ])}
-            mean={answer.score}
-            emphasized={level}
-          />
+          <Headline value={top.label} detail={agreement(answer.confidence)} />
+          <ScoreColumns levels={levels} top={top} mean={answer.score} />
         </>
       );
     }
@@ -125,15 +113,11 @@ function agreement(confidence: number): string {
   return `Rater agreement ${confidence.toFixed(2)}`;
 }
 
-function Headline({ value, details }: { value: string; details: string[] }) {
+function Headline({ value, detail }: { value: string; detail: string }) {
   return (
     <div>
       <p className="text-3xl font-semibold tracking-tight">{value}</p>
-      {details.map((detail) => (
-        <p key={detail} className="mt-1 text-sm text-muted tabular-nums">
-          {detail}
-        </p>
-      ))}
+      <p className="mt-1 text-sm text-muted tabular-nums">{detail}</p>
     </div>
   );
 }
@@ -144,7 +128,7 @@ function Distribution({
   emphasized,
 }: {
   items: [label: string, share: number][];
-  emphasized: string | undefined;
+  emphasized: string;
 }) {
   return (
     <ul className="space-y-2.5">
@@ -171,15 +155,25 @@ function Distribution({
   );
 }
 
-function Bar({ share, emphasized }: { share: number; emphasized: boolean }) {
+function Bar({
+  share,
+  emphasized,
+  vertical = false,
+}: {
+  share: number;
+  emphasized: boolean;
+  vertical?: boolean;
+}) {
   return (
     <span
       aria-hidden
-      className="block h-2 overflow-hidden rounded-full bg-border"
+      className={`flex overflow-hidden rounded-full bg-border ${vertical ? "h-12 w-2 items-end" : "h-2"}`}
     >
       <span
-        className={`block h-full rounded-full ${emphasized ? "bg-foreground" : "bg-muted/50"}`}
-        style={{ width: percent(share) }}
+        className={`rounded-full ${vertical ? "w-full" : "h-full"} ${emphasized ? "bg-foreground" : "bg-muted/50"}`}
+        style={
+          vertical ? { height: percent(share) } : { width: percent(share) }
+        }
       />
     </span>
   );
@@ -192,12 +186,12 @@ function Bar({ share, emphasized }: { share: number; emphasized: boolean }) {
  */
 function ScoreColumns({
   levels,
+  top,
   mean,
-  emphasized,
 }: {
-  levels: [label: string, share: number][];
+  levels: ScoreLevel[];
+  top: ScoreLevel;
   mean: number;
-  emphasized: string;
 }) {
   // Level indices count from 0 and each sits at the center of its column.
   function center(level: number): string {
@@ -212,28 +206,22 @@ function ScoreColumns({
   return (
     <div>
       <ol className="flex">
-        {levels.map(([label, share]) => {
-          const isEmphasized = label === emphasized;
+        {levels.map((level) => {
+          const isTop = level === top;
           return (
             <li
-              key={label}
+              key={level.label}
               className="flex min-w-0 flex-1 flex-col items-center gap-1 text-xs"
             >
-              <span className="text-muted tabular-nums">{percent(share)}</span>
-              <span
-                aria-hidden
-                className="flex h-12 w-2 items-end overflow-hidden rounded-full bg-border"
-              >
-                <span
-                  className={`w-full rounded-full ${isEmphasized ? "bg-foreground" : "bg-muted/50"}`}
-                  style={{ height: percent(share) }}
-                />
+              <span className="text-muted tabular-nums">
+                {percent(level.share)}
               </span>
+              <Bar share={level.share} emphasized={isTop} vertical />
               <span
-                title={label}
-                className={`w-full truncate text-center ${isEmphasized ? "font-medium" : "text-muted"}`}
+                title={level.label}
+                className={`w-full truncate text-center ${isTop ? "font-medium" : "text-muted"}`}
               >
-                {label}
+                {level.label}
               </span>
             </li>
           );
