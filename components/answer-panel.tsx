@@ -1,3 +1,4 @@
+import type { Decisions } from "@humeai/audio-decisions";
 import { CheckIcon, CopyIcon } from "@primer/octicons-react";
 import { useEffect, useId, useState } from "react";
 
@@ -36,7 +37,7 @@ export function AnswerPanel({ chunk, questions }: AnswerPanelProps) {
             : "Answers"}
         </h2>
         {chunk?.result.status === "answered" && (
-          <CopyRunId runId={chunk.result.response.runId} />
+          <CallDetails response={chunk.result.response} />
         )}
       </div>
       <AnswerBody chunk={chunk} questions={questions} />
@@ -79,6 +80,17 @@ function AnswerBody({ chunk, questions }: AnswerPanelProps) {
   }
 }
 
+function CallDetails({ response }: { response: Decisions.DecisionsResponse }) {
+  return (
+    <div className="flex min-w-0 items-baseline gap-4 text-xs text-muted">
+      <p className="shrink-0 tabular-nums">
+        {response.received.inputTokens.toLocaleString()} input tokens
+      </p>
+      <CopyRunId runId={response.runId} />
+    </div>
+  );
+}
+
 function CopyRunId({ runId }: { runId: string }) {
   const [isCopied, setIsCopied] = useState(false);
 
@@ -104,7 +116,7 @@ function CopyRunId({ runId }: { runId: string }) {
             setIsCopied(true);
           });
         }}
-        className="flex min-w-0 items-center gap-1.5 text-xs text-muted transition-colors hover:text-foreground"
+        className="flex min-w-0 items-center gap-1.5 transition-colors hover:text-foreground"
       >
         <span className="truncate">Run ID {runId}</span>
         {isCopied ? <CheckIcon size={12} /> : <CopyIcon size={12} />}
