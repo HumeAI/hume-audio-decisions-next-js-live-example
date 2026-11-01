@@ -36,7 +36,7 @@ export function QuestionPanel({
   return (
     <section aria-labelledby={headingId}>
       {/* On narrow screens, the button that opens the panel names it. */}
-      <h2 id={headingId} className="text-sm font-semibold max-md:sr-only">
+      <h2 id={headingId} className="text-base font-semibold max-md:sr-only">
         Questions
       </h2>
 
@@ -53,7 +53,7 @@ export function QuestionPanel({
             <div className="pt-1">
               <QuestionOptions question={question} />
             </div>
-            <div className="flex gap-4 pt-1">
+            <div className="flex gap-4 pt-1.5">
               <Button
                 variant="text"
                 disabled={disabled}

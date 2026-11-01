@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { type CSSProperties, useMemo } from "react";
 
 import { formatTime } from "@/lib/format-time";
 import { BLOCKS_PER_SECOND, CHUNK_MS } from "@/lib/recording";
@@ -66,15 +66,17 @@ export function Waveform({
             backgroundSize: `${String(toPixels(CHUNK_MS))}px 100%`,
           }}
         >
-          <svg
-            aria-hidden
+          <Bars path={path} width={width} className="text-muted/40" />
+          {/* The played part is drawn again on top in a darker gray, cut off
+              at the playhead. */}
+          <Bars
+            path={path}
             width={width}
-            viewBox={`0 0 ${String(width)} 100`}
-            preserveAspectRatio="none"
-            className="h-full text-muted"
-          >
-            <path d={path} stroke="currentColor" strokeWidth={BAR_STEP - 1} />
-          </svg>
+            className="absolute inset-y-0 left-0 text-muted"
+            style={{
+              clipPath: `inset(0 ${String(width - toPixels(playheadMs ?? 0))}px 0 0)`,
+            }}
+          />
           {onSeek && (
             <input
               type="range"
@@ -96,5 +98,30 @@ export function Waveform({
         </div>
       )}
     </div>
+  );
+}
+
+function Bars({
+  path,
+  width,
+  className,
+  style,
+}: {
+  path: string;
+  width: number;
+  className: string;
+  style?: CSSProperties;
+}) {
+  return (
+    <svg
+      aria-hidden
+      width={width}
+      viewBox={`0 0 ${String(width)} 100`}
+      preserveAspectRatio="none"
+      className={`h-full ${className}`}
+      style={style}
+    >
+      <path d={path} stroke="currentColor" strokeWidth={BAR_STEP - 1} />
+    </svg>
   );
 }

@@ -13,7 +13,7 @@ export function QuestionOptions({ question }: { question: LiveQuestion }) {
           {questionOptions(question).map((option) => (
             <li
               key={option}
-              className="rounded-full border border-border px-2 py-0.5 text-xs text-muted"
+              className="rounded-full border border-border px-2.5 py-0.5 text-sm"
             >
               {option}
             </li>
@@ -52,7 +52,7 @@ function Segments({
           <li
             key={item}
             title={item}
-            className="min-w-0 flex-1 truncate px-1.5 py-1 text-center text-xs text-muted"
+            className="min-w-0 flex-1 truncate px-1.5 py-0.5 text-center text-sm"
           >
             {item}
           </li>

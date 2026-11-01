@@ -94,7 +94,7 @@ function AnswerDetail({ answer }: { answer: Decisions.Answer }) {
         <>
           <Headline
             value={nearestLevel(answer) ?? answer.score.toFixed(1)}
-            unit={`${answer.score.toFixed(1)} of ${String(levels.length - 1)}`}
+            unit={`${answer.score.toFixed(1)} on a 0 to ${String(levels.length - 1)} scale`}
             detail={`Confidence ${answer.confidence.toFixed(2)}`}
           />
           <Distribution

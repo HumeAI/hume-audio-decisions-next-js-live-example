@@ -2,7 +2,7 @@ import { useId } from "react";
 
 import { formatTime } from "@/lib/format-time";
 import type { NamedQuestion } from "@/lib/questions";
-import type { Chunk } from "@/lib/recording";
+import { CHUNK_MS, type Chunk } from "@/lib/recording";
 
 import { AnswerCard } from "./answer-card";
 
@@ -28,7 +28,7 @@ export function AnswerPanel({ chunk, questions }: AnswerPanelProps) {
         <h2
           id={headingId}
           aria-live="polite"
-          className="text-sm font-semibold tabular-nums"
+          className="text-base font-semibold tabular-nums"
         >
           {chunk
             ? `Answers for ${formatTime(chunk.startMs)} to ${formatTime(chunk.endMs)}`
@@ -50,7 +50,11 @@ function AnswerBody({ chunk, questions }: AnswerPanelProps) {
   switch (chunk?.result.status) {
     case undefined:
     case "pending":
-      return null;
+      return (
+        <p className="text-sm text-muted">
+          Answers for each {CHUNK_MS / 1000} seconds of audio show up here.
+        </p>
+      );
     case "failed":
       return (
         <p className="text-sm text-red-600 dark:text-red-400">

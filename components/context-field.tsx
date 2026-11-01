@@ -19,7 +19,7 @@ export function ContextField({
   return (
     <div className="space-y-1.5">
       <div className="flex items-baseline justify-between">
-        <label htmlFor={`${ids}-context`} className="text-sm font-semibold">
+        <label htmlFor={`${ids}-context`} className="text-base font-semibold">
           Context
         </label>
         <p id={`${ids}-count`} className="text-xs text-muted tabular-nums">
@@ -40,7 +40,7 @@ export function ContextField({
         className="w-full resize-none rounded-lg border border-border bg-transparent px-3 py-2 text-sm disabled:opacity-60"
       />
       <p id={`${ids}-hint`} className="hidden text-sm text-muted md:block">
-        Optional. Describes the setting, which the model reads with the audio.
+        Optional. Tells the model where the audio comes from, such as a podcast.
       </p>
     </div>
   );
