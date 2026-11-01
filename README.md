@@ -61,7 +61,7 @@ See [Limits](https://dev.hume.ai/decisions/docs/limits) for the rest.
 
 1. `hooks/use-recorder.ts` opens the microphone with `lib/microphone.ts`. An [AudioWorklet](https://developer.mozilla.org/docs/Web/API/AudioWorklet) in `public/audio-block-worklet.js` delivers the audio in blocks of 125 ms, which also draw the waveform.
 2. `createChunker` in `lib/recording.ts` collects the blocks into 5-second chunks. For each chunk, `useRecorder` calls `askDecisions` in `lib/decisions.ts`, which resamples the audio to 16 kHz, encodes it as a WAV file with `lib/wav.ts`, and posts it with the questions and context to the `app/api/decisions` route. Chunks are sent as soon as they are ready, without waiting for earlier answers.
-3. The route calls `decisions.create` on a `DecisionsClient` from the `@humeai/audio-decisions` SDK, which reads `HUME_API_KEY` on the server, so the key never reaches the browser.
+3. The route calls `decisions.create` on a `DecisionsClient` from the `@humeai/audio-decisions` SDK, which reads `HUME_API_KEY` on the server, so the key never reaches the browser. The route has no sign-in, so anyone who can reach it can spend your API key. Run the app locally, or add authentication before you deploy it.
 4. Each answer lands on its chunk in `components/answer-timeline.tsx`, and `components/answer-card.tsx` shows the full answer. `hooks/use-playback.ts` replays the recording.
 
 ## Adapt it
