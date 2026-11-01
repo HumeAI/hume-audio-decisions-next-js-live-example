@@ -26,8 +26,6 @@ export const MIN_OPTIONS = 2;
 
 export const DEFAULT_CONTEXT = "Live microphone audio of one person speaking.";
 
-export const MAX_CONTEXT_LENGTH = 1_000;
-
 export const DEFAULT_QUESTIONS: NamedQuestion[] = [
   {
     id: "speaking",
@@ -51,7 +49,7 @@ export const DEFAULT_QUESTIONS: NamedQuestion[] = [
     question: {
       type: "score",
       instructions: "How energetic does the speaker sound?",
-      criteria: ["Low", "Moderate", "High"],
+      criteria: ["Very low", "Low", "Moderate", "High", "Very high"],
     },
   },
 ];

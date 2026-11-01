@@ -1,30 +1,34 @@
 import { type LiveQuestion, questionOptions } from "@/lib/questions";
 
 /**
- * The answers a question allows, drawn in the shape of its answer: choice
- * options as separate chips, a noul question as a yes and no pair, and score
- * levels as one scale numbered the way scores count them.
+ * The answers a question allows: choice options as chips, a noul question as
+ * a yes and no pair, and score levels as chips numbered the way scores count
+ * them. Chips wrap, so long options and many levels stay readable in a narrow
+ * panel.
  */
 export function QuestionOptions({ question }: { question: LiveQuestion }) {
   switch (question.type) {
     case "choice":
+      return <Chips label="Options" items={questionOptions(question)} />;
+    case "noul":
       return (
-        <ul aria-label="Options" className="flex flex-wrap gap-1.5">
-          {questionOptions(question).map((option) => (
+        <ol
+          aria-label="Answers"
+          className="flex divide-x divide-border overflow-hidden rounded-full border border-border"
+        >
+          {["Yes", "No"].map((item) => (
             <li
-              key={option}
-              className="rounded-full border border-border px-2.5 py-0.5 text-sm text-muted"
+              key={item}
+              className="flex-1 px-1.5 py-0.5 text-center text-sm text-muted"
             >
-              {option}
+              {item}
             </li>
           ))}
-        </ul>
+        </ol>
       );
-    case "noul":
-      return <Segments label="Answers" items={["Yes", "No"]} />;
     case "score":
       return (
-        <Segments
+        <Chips
           label="Levels, lowest to highest"
           items={questionOptions(question)}
           numbered
@@ -33,7 +37,7 @@ export function QuestionOptions({ question }: { question: LiveQuestion }) {
   }
 }
 
-function Segments({
+function Chips({
   label,
   items,
   numbered = false,
@@ -42,34 +46,22 @@ function Segments({
   items: string[];
   numbered?: boolean;
 }) {
+  const List = numbered ? "ol" : "ul";
   return (
-    <div className="space-y-1">
-      <ol
-        aria-label={label}
-        className="flex divide-x divide-border overflow-hidden rounded-full border border-border"
-      >
-        {items.map((item) => (
-          <li
-            key={item}
-            title={item}
-            className="min-w-0 flex-1 truncate px-1.5 py-0.5 text-center text-sm text-muted"
-          >
-            {item}
-          </li>
-        ))}
-      </ol>
-      {numbered && (
-        <div
-          aria-hidden
-          className="flex text-center text-xs text-muted tabular-nums"
+    <List aria-label={label} className="flex flex-wrap gap-1.5">
+      {items.map((item, index) => (
+        <li
+          key={item}
+          className="rounded-full border border-border px-2.5 py-0.5 text-sm text-muted"
         >
-          {items.map((item, index) => (
-            <span key={item} className="flex-1">
+          {numbered && (
+            <span aria-hidden className="mr-1.5 text-xs tabular-nums">
               {index}
             </span>
-          ))}
-        </div>
-      )}
-    </div>
+          )}
+          {item}
+        </li>
+      ))}
+    </List>
   );
 }

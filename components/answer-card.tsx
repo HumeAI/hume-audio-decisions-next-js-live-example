@@ -1,14 +1,14 @@
 import type { Decisions } from "@humeai/audio-decisions";
 import { useId } from "react";
 
-import { nearestLevel, summarizeAnswer } from "@/lib/answers";
-import type { NamedQuestion } from "@/lib/questions";
+import { percent, topLevel } from "@/lib/answers";
+import {
+  type LiveQuestion,
+  type NamedQuestion,
+  questionOptions,
+} from "@/lib/questions";
 
 import { QuestionLabel } from "./question-label";
-
-function percent(share: number): string {
-  return `${String(Math.round(share * 100))}%`;
-}
 
 interface AnswerCardProps {
   question: NamedQuestion;
@@ -42,7 +42,7 @@ export function AnswerCard({ question, number, answer }: AnswerCardProps) {
         </p>
       </header>
       {answer ? (
-        <AnswerDetail answer={answer} />
+        <AnswerDetail question={question.question} answer={answer} />
       ) : (
         <p className="text-sm text-muted">No answer was returned.</p>
       )}
@@ -50,36 +50,44 @@ export function AnswerCard({ question, number, answer }: AnswerCardProps) {
   );
 }
 
-function AnswerDetail({ answer }: { answer: Decisions.Answer }) {
+function AnswerDetail({
+  question,
+  answer,
+}: {
+  question: LiveQuestion;
+  answer: Decisions.Answer;
+}) {
   switch (answer.type) {
-    case "noul": {
-      const value = summarizeAnswer(answer);
-      const share = value === "Yes" ? answer.noul : 1 - answer.noul;
+    case "noul":
       return (
         <>
           <Headline
-            value={value}
-            detail={`${percent(share)} of raters would answer ${value.toLowerCase()}`}
+            value={percent(answer.noul)}
+            details={["of raters would answer yes"]}
           />
           <Distribution
             items={[
               ["Yes", answer.noul],
               ["No", 1 - answer.noul],
             ]}
-            emphasized={value}
+            emphasized="Yes"
           />
         </>
       );
-    }
     case "choice":
       return (
         <>
           <Headline
             value={answer.choice}
-            detail={`Confidence ${answer.confidence.toFixed(2)}`}
+            details={[agreement(answer.confidence)]}
           />
+          {/* Options follow the question's order, which is the order the
+              model reads them in. */}
           <Distribution
-            items={Object.entries(answer.probabilities)}
+            items={questionOptions(question).map((option) => [
+              option,
+              answer.probabilities[option] ?? 0,
+            ])}
             emphasized={answer.choice}
           />
         </>
@@ -90,19 +98,22 @@ function AnswerDetail({ answer }: { answer: Decisions.Answer }) {
       const levels = Object.keys(answer.legend).sort(
         (a, b) => Number(a) - Number(b),
       );
+      const level = topLevel(answer);
       return (
         <>
           <Headline
-            value={nearestLevel(answer) ?? answer.score.toFixed(1)}
-            unit={`${answer.score.toFixed(1)} on a 0 to ${String(levels.length - 1)} scale`}
-            detail={`Confidence ${answer.confidence.toFixed(2)}`}
+            value={level}
+            details={[
+              `Mean level ${answer.score.toFixed(1)} of 0 to ${String(levels.length - 1)}`,
+              agreement(answer.confidence),
+            ]}
           />
           <Distribution
-            items={levels.map((level) => [
-              answer.legend[level] ?? level,
-              answer.probabilities[level] ?? 0,
+            items={levels.map((index) => [
+              answer.legend[index] ?? index,
+              answer.probabilities[index] ?? 0,
             ])}
-            emphasized={nearestLevel(answer)}
+            emphasized={level}
           />
         </>
       );
@@ -113,26 +124,21 @@ function AnswerDetail({ answer }: { answer: Decisions.Answer }) {
   }
 }
 
-function Headline({
-  value,
-  unit,
-  detail,
-}: {
-  value: string;
-  unit?: string;
-  detail: string;
-}) {
+// `confidence` measures how much raters would agree with each other, not how
+// sure the model is.
+function agreement(confidence: number): string {
+  return `Rater agreement ${confidence.toFixed(2)}`;
+}
+
+function Headline({ value, details }: { value: string; details: string[] }) {
   return (
     <div>
-      <p className="text-3xl font-semibold tracking-tight">
-        {value}
-        {unit && (
-          <span className="ml-2 text-base font-normal tracking-normal text-muted">
-            {unit}
-          </span>
-        )}
-      </p>
-      <p className="mt-1 text-sm text-muted tabular-nums">{detail}</p>
+      <p className="text-3xl font-semibold tracking-tight">{value}</p>
+      {details.map((detail) => (
+        <p key={detail} className="mt-1 text-sm text-muted tabular-nums">
+          {detail}
+        </p>
+      ))}
     </div>
   );
 }

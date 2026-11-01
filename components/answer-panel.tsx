@@ -23,7 +23,7 @@ export function AnswerPanel({ chunk, questions }: AnswerPanelProps) {
   return (
     <section
       aria-labelledby={headingId}
-      className="flex h-[27rem] max-h-[60%] shrink-0 flex-col gap-3 p-4 md:pb-16"
+      className="flex h-[30rem] max-h-[60%] shrink-0 flex-col gap-3 p-4 md:pb-16"
     >
       <div className="flex items-baseline justify-between gap-4">
         <h2

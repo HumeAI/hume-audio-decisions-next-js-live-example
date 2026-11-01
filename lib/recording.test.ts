@@ -4,7 +4,7 @@ import { type Chunk, type ChunkResult, latestSettledChunk } from "./recording";
 
 const ANSWERED: ChunkResult = {
   status: "answered",
-  response: { runId: "run", answers: {} },
+  response: { runId: "run", answers: {}, received: { inputTokens: 0 } },
 };
 
 function chunk(index: number, result: ChunkResult): Chunk {
