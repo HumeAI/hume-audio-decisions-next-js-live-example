@@ -6,7 +6,7 @@ import { type ReactNode, useEffect, useRef } from "react";
 const PIXELS_PER_SECOND = 32;
 
 export const LABEL_COLUMN_CLASS_NAME =
-  "sticky left-0 z-20 w-24 shrink-0 border-r border-border bg-background md:w-32";
+  "sticky left-0 z-20 w-24 shrink-0 border-r bg-background md:w-32";
 
 export function toPixels(ms: number): number {
   return (ms / 1000) * PIXELS_PER_SECOND;
@@ -16,7 +16,7 @@ export function TimelineScroller({ children }: { children: ReactNode }) {
   // The left scroll padding matches the label column, so a playhead scrolled
   // into view never ends up behind it.
   return (
-    <div className="flex min-h-0 flex-1 scroll-pr-4 scroll-pl-24 flex-col overflow-auto border-y border-border md:scroll-pl-32">
+    <div className="flex min-h-0 flex-1 scroll-pr-4 scroll-pl-24 flex-col overflow-auto border-y md:scroll-pl-32">
       {children}
     </div>
   );

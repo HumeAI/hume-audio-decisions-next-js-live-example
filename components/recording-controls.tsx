@@ -114,10 +114,7 @@ export function RecordingControls({
         {isRecording ? "Recording" : ""}
       </p>
       {error && (
-        <p
-          role="alert"
-          className="basis-full text-sm text-red-600 dark:text-red-400"
-        >
+        <p role="alert" className="basis-full text-sm text-danger">
           {error}
         </p>
       )}

@@ -6,7 +6,7 @@ import { ThemeToggle } from "./theme-toggle";
 
 export function Header() {
   return (
-    <header className="flex h-13 shrink-0 items-center justify-between gap-4 border-b border-border px-4">
+    <header className="flex h-13 shrink-0 items-center justify-between gap-4 border-b px-4">
       <h1 className="text-xl font-semibold tracking-tight">
         Live Audio Decisions
       </h1>

@@ -38,7 +38,7 @@ export function Modal({ title, onDismiss, children }: ModalProps) {
           dialogRef.current?.close();
         }
       }}
-      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-border bg-background text-foreground backdrop:bg-black/50"
+      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border bg-background text-foreground backdrop:bg-black/50"
     >
       <div className="max-h-[calc(100dvh-2rem)] overflow-y-auto p-6">
         <h2 id={titleId} className="text-lg font-semibold tracking-tight">

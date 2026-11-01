@@ -29,11 +29,7 @@ export function AnswerPanel({ chunk, questions }: AnswerPanelProps) {
       {/* The call details move below the heading when the row is too narrow
           for both, so the run ID is never cut off. */}
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2
-          id={headingId}
-          aria-live="polite"
-          className="text-base font-semibold"
-        >
+        <h2 id={headingId} aria-live="polite" className="font-semibold">
           Answers{" "}
           {chunk && (
             <span className="text-xs font-normal text-muted tabular-nums">
@@ -60,11 +56,7 @@ function AnswerBody({ chunk, questions }: AnswerPanelProps) {
         </p>
       );
     case "failed":
-      return (
-        <p className="text-sm text-red-600 dark:text-red-400">
-          {chunk.result.message}
-        </p>
-      );
+      return <p className="text-sm text-danger">{chunk.result.message}</p>;
     case "answered": {
       const { answers } = chunk.result.response;
       return (

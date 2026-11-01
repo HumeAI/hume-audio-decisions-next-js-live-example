@@ -8,7 +8,7 @@ import {
   questionOptions,
 } from "@/lib/questions";
 
-import { QuestionLabel } from "./question-label";
+import { QuestionHeading } from "./question-label";
 
 interface AnswerCardProps {
   question: NamedQuestion;
@@ -26,17 +26,15 @@ export function AnswerCard({ question, number, answer }: AnswerCardProps) {
   return (
     <article
       aria-labelledby={titleId}
-      className="row-span-3 grid grid-rows-subgrid gap-5 rounded-xl border border-border p-5"
+      className="row-span-3 grid grid-rows-subgrid gap-5 rounded-xl border p-5"
     >
       <header className="space-y-1.5">
-        <div className="flex items-baseline justify-between gap-3">
-          <h3 id={titleId} className="truncate font-medium">
-            <QuestionLabel id={question.id} number={number} />
-          </h3>
-          <p className="shrink-0 text-xs text-muted">
-            {question.question.type}
-          </p>
-        </div>
+        <QuestionHeading
+          id={question.id}
+          number={number}
+          type={question.question.type}
+          titleId={titleId}
+        />
         <p className="line-clamp-2 text-sm text-muted">
           {question.question.instructions}
         </p>

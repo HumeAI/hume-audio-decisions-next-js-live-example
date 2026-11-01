@@ -46,7 +46,7 @@ export function Waveform({
   return (
     // The waveform takes any height the timeline has to spare, and keeps a
     // minimum when the question rows need the rest.
-    <div className="sticky top-0 z-30 flex min-h-[clamp(4rem,12dvh,10rem)] flex-1 border-b border-border bg-background">
+    <div className="sticky top-0 z-30 flex min-h-[clamp(4rem,12dvh,10rem)] flex-1 border-b bg-background">
       <div
         className={`${LABEL_COLUMN_CLASS_NAME} flex items-center px-3 text-sm font-medium`}
       >
@@ -56,7 +56,7 @@ export function Waveform({
         <p className="flex items-center px-3 text-sm text-muted">{emptyText}</p>
       ) : (
         <div
-          className="relative h-full shrink-0 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-foreground"
+          className="relative h-full shrink-0 has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-foreground"
           style={{
             width,
             // A line at the end of every chunk, in line with the edges of the

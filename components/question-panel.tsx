@@ -5,7 +5,7 @@ import type { NamedQuestion } from "@/lib/questions";
 
 import { Button } from "./button";
 import { QuestionDialog } from "./question-dialog";
-import { QuestionLabel } from "./question-label";
+import { QuestionHeading } from "./question-label";
 import { QuestionOptions } from "./question-options";
 
 interface QuestionPanelProps {
@@ -38,7 +38,7 @@ export function QuestionPanel({
     <section aria-labelledby={headingId}>
       <div className="flex items-center justify-between">
         {/* On narrow screens, the button that opens the panel names it. */}
-        <h2 id={headingId} className="text-base font-semibold max-md:sr-only">
+        <h2 id={headingId} className="font-semibold max-md:sr-only">
           Questions
         </h2>
         <Button
@@ -53,16 +53,15 @@ export function QuestionPanel({
         </Button>
       </div>
 
-      <ol className="mt-3 divide-y divide-border rounded-xl border border-border">
+      <ol className="mt-3 divide-y rounded-xl border">
         {questions.map(({ id, question }, index) => (
           <li key={id} className="space-y-3 px-4 pt-5 pb-4">
             <div className="space-y-1">
-              <div className="flex items-baseline justify-between gap-3">
-                <h3 className="truncate text-base font-medium">
-                  <QuestionLabel id={id} number={index + 1} />
-                </h3>
-                <p className="shrink-0 text-xs text-muted">{question.type}</p>
-              </div>
+              <QuestionHeading
+                id={id}
+                number={index + 1}
+                type={question.type}
+              />
               <p className="text-sm">{question.instructions}</p>
             </div>
             <QuestionOptions question={question} />

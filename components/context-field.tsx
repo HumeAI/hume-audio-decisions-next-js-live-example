@@ -1,6 +1,8 @@
 import { InfoIcon } from "@primer/octicons-react";
 import { useId } from "react";
 
+import { FIELD_CLASS_NAME } from "./field";
+
 interface ContextFieldProps {
   context: string;
   onContextChange: (context: string) => void;
@@ -20,7 +22,7 @@ export function ContextField({
       {/* The row is the tooltip's positioning box, so the tooltip spans the
           panel's width rather than overflowing from the icon. */}
       <div className="relative flex items-center gap-1.5">
-        <label htmlFor={`${ids}-context`} className="text-base font-semibold">
+        <label htmlFor={`${ids}-context`} className="font-semibold">
           Context
         </label>
         {/* A tap focuses the button, so the tooltip also opens on touch
@@ -56,7 +58,7 @@ export function ContextField({
           onContextChange(event.target.value);
         }}
         aria-describedby={`${ids}-hint`}
-        className="block w-full resize-none rounded-lg border border-border bg-transparent px-3 py-2 text-sm disabled:opacity-60"
+        className={`block ${FIELD_CLASS_NAME} resize-none disabled:opacity-60`}
       />
     </div>
   );

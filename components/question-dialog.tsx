@@ -13,10 +13,8 @@ import {
 } from "@/lib/questions";
 
 import { Button } from "./button";
+import { FIELD_CLASS_NAME } from "./field";
 import { Modal } from "./modal";
-
-const FIELD_CLASS_NAME =
-  "w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm";
 
 interface OptionField {
   key: string;
@@ -114,9 +112,7 @@ export function QuestionDialog({
           />
           <p id={`${fieldIds}-id-hint`} className="text-sm text-muted">
             {shownErrors.id ? (
-              <span className="text-red-600 dark:text-red-400">
-                {shownErrors.id}
-              </span>
+              <span className="text-danger">{shownErrors.id}</span>
             ) : (
               "Labels the timeline row and keys the answer in the response."
             )}
@@ -173,7 +169,7 @@ export function QuestionDialog({
           {shownErrors.instructions && (
             <p
               id={`${fieldIds}-instructions-error`}
-              className="text-sm text-red-600 dark:text-red-400"
+              className="text-sm text-danger"
             >
               {shownErrors.instructions}
             </p>
@@ -218,9 +214,7 @@ export function QuestionDialog({
               className="mt-1.5 text-sm text-muted"
             >
               {shownErrors.options ? (
-                <span className="text-red-600 dark:text-red-400">
-                  {shownErrors.options}
-                </span>
+                <span className="text-danger">{shownErrors.options}</span>
               ) : (
                 `At least ${String(MIN_OPTIONS)} ${noun}s.`
               )}

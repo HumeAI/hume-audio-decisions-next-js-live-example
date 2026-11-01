@@ -68,7 +68,7 @@ export function AnswerTimeline({
                     onSelectChunk?.(chunk);
                   }}
                   aria-current={isCurrent ? "time" : undefined}
-                  className="relative flex h-full w-full flex-col border-r border-border text-left transition-colors enabled:hover:bg-subtle focus-visible:-outline-offset-2 aria-[current=time]:bg-subtle"
+                  className="relative flex h-full w-full flex-col border-r text-left transition-colors enabled:hover:bg-subtle focus-visible:-outline-offset-2 aria-[current=time]:bg-subtle"
                 >
                   {isCurrent && (
                     <span
@@ -105,9 +105,7 @@ function ChunkAnswers({
       return null;
     case "failed":
       return (
-        <span
-          className={`${ANSWER_ROW_CLASS_NAME} px-2 text-sm text-red-600 dark:text-red-400`}
-        >
+        <span className={`${ANSWER_ROW_CLASS_NAME} px-2 text-sm text-danger`}>
           Failed
         </span>
       );

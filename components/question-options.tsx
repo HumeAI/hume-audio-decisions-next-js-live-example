@@ -14,7 +14,7 @@ export function QuestionOptions({ question }: { question: LiveQuestion }) {
       return (
         <ol
           aria-label="Answers"
-          className="flex divide-x divide-border overflow-hidden rounded-full border border-border"
+          className="flex divide-x overflow-hidden rounded-full border"
         >
           {["Yes", "No"].map((item) => (
             <li
@@ -52,7 +52,7 @@ function Chips({
       {items.map((item, index) => (
         <li
           key={item}
-          className="rounded-full border border-border px-2.5 py-0.5 text-sm text-muted"
+          className="rounded-full border px-2.5 py-0.5 text-sm text-muted"
         >
           {numbered && (
             <span aria-hidden className="mr-1.5 text-xs tabular-nums">
