@@ -4,27 +4,29 @@ import { useId, useState } from "react";
 
 import { formatTime } from "@/lib/format-time";
 import type { NamedQuestion } from "@/lib/questions";
-import { CHUNK_MS, type Chunk } from "@/lib/recording";
+import type { Chunk } from "@/lib/recording";
 
 import { AnswerCard } from "./answer-card";
 
 interface AnswerPanelProps {
   chunk: Chunk | undefined;
-  /** The questions the chunk was asked with. */
+  /** The questions the chunk was asked with, one card each. */
   questions: NamedQuestion[];
 }
 
 export function AnswerPanel({ chunk, questions }: AnswerPanelProps) {
   const headingId = useId();
+  const result = chunk?.result;
+  const response = result?.status === "answered" ? result.response : undefined;
 
-  // A fixed height keeps the timeline the same size with or without answers.
-  // It fits the cards of the default questions, and more cards scroll. The
-  // bottom padding matches the side panel's, so the cards end level with the
-  // context field.
+  // The panel is as tall as its cards, and a card is as tall before its
+  // answer arrives as after, so the timeline keeps its height when answers
+  // arrive. The bottom padding matches the side panel's, so the cards end
+  // level with the context field.
   return (
     <section
       aria-labelledby={headingId}
-      className="flex h-[27rem] max-h-[60%] shrink-0 flex-col gap-3 p-4 md:pb-16"
+      className="flex max-h-[60%] shrink-0 flex-col gap-3 p-4 md:pb-16"
     >
       {/* The call details move below the heading when the row is too narrow
           for both, so the run ID is never cut off. */}
@@ -37,44 +39,23 @@ export function AnswerPanel({ chunk, questions }: AnswerPanelProps) {
             </span>
           )}
         </h2>
-        {chunk?.result.status === "answered" && (
-          <CallDetails response={chunk.result.response} />
+        {response && <CallDetails response={response} />}
+        {result?.status === "failed" && (
+          <p className="text-sm text-danger">{result.message}</p>
         )}
       </div>
-      <AnswerBody chunk={chunk} questions={questions} />
+      <div className="grid min-h-0 auto-rows-min grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-4 overflow-y-auto">
+        {questions.map((question, index) => (
+          <AnswerCard
+            key={question.id}
+            question={question}
+            number={index + 1}
+            answer={response?.answers[question.id]}
+          />
+        ))}
+      </div>
     </section>
   );
-}
-
-function AnswerBody({ chunk, questions }: AnswerPanelProps) {
-  switch (chunk?.result.status) {
-    case undefined:
-    case "pending":
-      return (
-        <p className="text-sm text-muted">
-          Answers for each {CHUNK_MS / 1000} seconds of audio show up here.
-        </p>
-      );
-    case "failed":
-      return <p className="text-sm text-danger">{chunk.result.message}</p>;
-    case "answered": {
-      const { answers } = chunk.result.response;
-      return (
-        // The last row of each card takes the spare height, so the cards
-        // reach the bottom of the panel.
-        <div className="grid min-h-0 flex-1 auto-rows-[min-content_min-content_1fr] grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-4 overflow-y-auto">
-          {questions.map((question, index) => (
-            <AnswerCard
-              key={question.id}
-              question={question}
-              number={index + 1}
-              answer={answers[question.id]}
-            />
-          ))}
-        </div>
-      );
-    }
-  }
 }
 
 function CallDetails({ response }: { response: Decisions.DecisionsResponse }) {

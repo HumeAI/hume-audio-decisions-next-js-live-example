@@ -34,6 +34,10 @@ export function LiveDecisions() {
   const isCapturing = recorder.status !== "idle";
   const chunks = recording?.chunks ?? [];
   const durationMs = recording?.durationMs ?? 0;
+  // Before the first recording, the timeline rows and the answer cards follow
+  // the questions being edited, so neither changes shape when recording
+  // starts.
+  const shownQuestions = recording?.questions ?? questions;
 
   // While recording, the playhead marks the live edge, so the newest answers
   // show.
@@ -89,10 +93,8 @@ export function LiveDecisions() {
             followPlayhead={isCapturing || playback.isPlaying}
             onSeek={isCapturing ? undefined : playback.seek}
           />
-          {/* Before the first recording, the rows follow the questions being
-              edited, so the timeline keeps its shape when recording starts. */}
           <AnswerTimeline
-            questions={recording?.questions ?? questions}
+            questions={shownQuestions}
             chunks={chunks}
             durationMs={durationMs}
             currentChunk={currentChunk}
@@ -101,10 +103,7 @@ export function LiveDecisions() {
           />
         </TimelineScroller>
 
-        <AnswerPanel
-          chunk={currentChunk}
-          questions={recording?.questions ?? []}
-        />
+        <AnswerPanel chunk={currentChunk} questions={shownQuestions} />
       </div>
     </main>
   );

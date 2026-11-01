@@ -14,6 +14,7 @@ interface AnswerCardProps {
   question: NamedQuestion;
   /** The question's position in the list, counting from 1. */
   number: number;
+  /** Until it arrives, the card shows the answer's layout with no values. */
   answer: Decisions.Answer | undefined;
 }
 
@@ -42,7 +43,7 @@ export function AnswerCard({ question, number, answer }: AnswerCardProps) {
       {answer ? (
         <AnswerDetail question={question.question} answer={answer} />
       ) : (
-        <p className="text-sm text-muted">No answer was returned.</p>
+        <EmptyDetail question={question.question} />
       )}
     </article>
   );
@@ -105,6 +106,31 @@ function AnswerDetail({
   }
 }
 
+// A non-breaking space keeps the height of a line that has no text yet.
+const BLANK = "\u00a0";
+
+/**
+ * The layout of an answer with no values in it, so a card is as tall before
+ * its answer arrives as after.
+ */
+function EmptyDetail({ question }: { question: LiveQuestion }) {
+  return (
+    <>
+      <Headline value={BLANK} detail={BLANK} />
+      {question.type === "score" ? (
+        <ScoreColumns levels={question.criteria.map((label) => ({ label }))} />
+      ) : (
+        <Distribution
+          items={(question.type === "noul"
+            ? ["Yes", "No"]
+            : questionOptions(question)
+          ).map((label) => [label])}
+        />
+      )}
+    </>
+  );
+}
+
 // `confidence` measures how much raters would agree with each other, not how
 // sure the model is.
 function agreement(confidence: number): string {
@@ -124,8 +150,8 @@ function Distribution({
   items,
   emphasized,
 }: {
-  items: [label: string, share: number][];
-  emphasized: string;
+  items: [label: string, share?: number][];
+  emphasized?: string;
 }) {
   return (
     <ul className="space-y-2.5">
@@ -143,7 +169,7 @@ function Distribution({
             </span>
             <Bar share={share} emphasized={isEmphasized} />
             <span className="text-right text-muted tabular-nums">
-              {percent(share)}
+              {share !== undefined && percent(share)}
             </span>
           </li>
         );
@@ -157,7 +183,7 @@ function Bar({
   emphasized,
   vertical = false,
 }: {
-  share: number;
+  share: number | undefined;
   emphasized: boolean;
   vertical?: boolean;
 }) {
@@ -166,12 +192,14 @@ function Bar({
       aria-hidden
       className={`flex overflow-hidden rounded-full bg-border ${vertical ? "h-12 w-2 items-end" : "h-2"}`}
     >
-      <span
-        className={`rounded-full ${vertical ? "w-full" : "h-full"} ${emphasized ? "bg-foreground" : "bg-muted/50"}`}
-        style={
-          vertical ? { height: percent(share) } : { width: percent(share) }
-        }
-      />
+      {share !== undefined && (
+        <span
+          className={`rounded-full ${vertical ? "w-full" : "h-full"} ${emphasized ? "bg-foreground" : "bg-muted/50"}`}
+          style={
+            vertical ? { height: percent(share) } : { width: percent(share) }
+          }
+        />
+      )}
     </span>
   );
 }
@@ -186,19 +214,14 @@ function ScoreColumns({
   top,
   mean,
 }: {
-  levels: ScoreLevel[];
-  top: ScoreLevel;
-  mean: number;
+  levels: { label: string; share?: number }[];
+  top?: ScoreLevel;
+  mean?: number;
 }) {
   // Level indices count from 0 and each sits at the center of its column.
   function center(level: number): string {
     return `${String(((level + 0.5) / levels.length) * 100)}%`;
   }
-  // The mean's label goes on whichever side of its dot has more room.
-  const labelStyle =
-    mean < (levels.length - 1) / 2
-      ? { left: `calc(${center(mean)} + 0.625rem)` }
-      : { right: `calc(100% - ${center(mean)} + 0.625rem)` };
 
   return (
     <div>
@@ -211,7 +234,7 @@ function ScoreColumns({
               className="flex min-w-0 flex-1 flex-col items-center gap-1 text-xs"
             >
               <span className="text-muted tabular-nums">
-                {percent(level.share)}
+                {level.share === undefined ? BLANK : percent(level.share)}
               </span>
               <Bar share={level.share} emphasized={isTop} vertical />
               <span
@@ -230,18 +253,27 @@ function ScoreColumns({
           className="absolute top-1/2 h-px bg-border"
           style={{ left: center(0), right: center(0) }}
         />
-        <span
-          aria-hidden
-          className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground"
-          style={{ left: center(mean) }}
-        />
-        {/* The background hides the axis behind the label. */}
-        <span
-          className="absolute top-0 bg-background px-1 text-xs whitespace-nowrap text-muted tabular-nums"
-          style={labelStyle}
-        >
-          Mean level {mean.toFixed(1)}
-        </span>
+        {mean !== undefined && (
+          <>
+            <span
+              aria-hidden
+              className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground"
+              style={{ left: center(mean) }}
+            />
+            {/* The label goes on whichever side of the dot has more room,
+                and its background hides the axis behind it. */}
+            <span
+              className="absolute top-0 bg-background px-1 text-xs whitespace-nowrap text-muted tabular-nums"
+              style={
+                mean < (levels.length - 1) / 2
+                  ? { left: `calc(${center(mean)} + 0.625rem)` }
+                  : { right: `calc(100% - ${center(mean)} + 0.625rem)` }
+              }
+            >
+              Mean level {mean.toFixed(1)}
+            </span>
+          </>
+        )}
       </div>
     </div>
   );
