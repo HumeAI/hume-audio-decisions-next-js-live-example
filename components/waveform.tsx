@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import { formatTime } from "@/lib/format-time";
-import { BLOCKS_PER_SECOND } from "@/lib/recording";
+import { BLOCKS_PER_SECOND, CHUNK_MS } from "@/lib/recording";
 
 import { LABEL_COLUMN_CLASS_NAME, Playhead, toPixels } from "./timeline-layout";
 
@@ -16,6 +16,8 @@ interface WaveformProps {
   followPlayhead: boolean;
   /** Moves the playhead. Leave it out to turn seeking off. */
   onSeek?: (ms: number) => void;
+  /** Shown in place of the waveform until there is audio. */
+  emptyText: string;
 }
 
 export function Waveform({
@@ -24,6 +26,7 @@ export function Waveform({
   playheadMs,
   followPlayhead,
   onSeek,
+  emptyText,
 }: WaveformProps) {
   const width = toPixels(durationMs);
   // The view box is 100 units tall and stretches to the element's height, so a
@@ -47,38 +50,51 @@ export function Waveform({
       >
         Audio
       </div>
-      <div
-        className="relative h-20 shrink-0 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-foreground"
-        style={{ width }}
-      >
-        <svg
-          aria-hidden
-          width={width}
-          viewBox={`0 0 ${String(width)} 100`}
-          preserveAspectRatio="none"
-          className="h-full text-muted"
+      {durationMs === 0 ? (
+        <p className="flex h-20 items-center px-3 text-sm text-muted">
+          {emptyText}
+        </p>
+      ) : (
+        <div
+          className="relative h-20 shrink-0 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-foreground"
+          style={{
+            width,
+            // A line at the end of every chunk, in line with the edges of the
+            // chunk columns below.
+            backgroundImage:
+              "linear-gradient(to left, var(--border) 1px, transparent 1px)",
+            backgroundSize: `${String(toPixels(CHUNK_MS))}px 100%`,
+          }}
         >
-          <path d={path} stroke="currentColor" strokeWidth={BAR_STEP - 1} />
-        </svg>
-        {onSeek && (
-          <input
-            type="range"
-            aria-label="Playback position"
-            min={0}
-            max={durationMs}
-            step={100}
-            value={playheadMs ?? 0}
-            aria-valuetext={formatTime(playheadMs ?? 0)}
-            onChange={(event) => {
-              onSeek(Number(event.target.value));
-            }}
-            className="absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0"
-          />
-        )}
-        {playheadMs !== null && (
-          <Playhead ms={playheadMs} follow={followPlayhead} />
-        )}
-      </div>
+          <svg
+            aria-hidden
+            width={width}
+            viewBox={`0 0 ${String(width)} 100`}
+            preserveAspectRatio="none"
+            className="h-full text-muted"
+          >
+            <path d={path} stroke="currentColor" strokeWidth={BAR_STEP - 1} />
+          </svg>
+          {onSeek && (
+            <input
+              type="range"
+              aria-label="Playback position"
+              min={0}
+              max={durationMs}
+              step={100}
+              value={playheadMs ?? 0}
+              aria-valuetext={formatTime(playheadMs ?? 0)}
+              onChange={(event) => {
+                onSeek(Number(event.target.value));
+              }}
+              className="absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0"
+            />
+          )}
+          {playheadMs !== null && (
+            <Playhead ms={playheadMs} follow={followPlayhead} />
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,10 @@
 import type { Decisions } from "@humeai/audio-decisions";
 import { useId } from "react";
 
-import { summarizeAnswer } from "@/lib/answers";
+import { nearestLevel, summarizeAnswer } from "@/lib/answers";
 import type { NamedQuestion } from "@/lib/questions";
+
+import { TypePill } from "./type-pill";
 
 function percent(share: number): string {
   return `${String(Math.round(share * 100))}%`;
@@ -16,19 +18,20 @@ interface AnswerCardProps {
 export function AnswerCard({ question, answer }: AnswerCardProps) {
   const titleId = useId();
 
+  // A card spans three rows of the answer grid and shares them through a
+  // subgrid, so the question, the answer and the bars each start at the same
+  // height across a row of cards, even when one question wraps.
   return (
     <article
       aria-labelledby={titleId}
-      className="flex flex-col gap-4 rounded-xl border border-border p-4"
+      className="row-span-3 grid grid-rows-subgrid gap-4 rounded-xl border border-border p-4"
     >
       <header className="space-y-1">
-        <div className="flex items-baseline justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <h3 id={titleId} className="truncate text-sm font-medium">
             {question.id}
           </h3>
-          <p className="shrink-0 text-xs text-muted">
-            {question.question.type}
-          </p>
+          <TypePill type={question.question.type} />
         </div>
         <p className="line-clamp-2 text-sm text-muted">
           {question.question.instructions}
@@ -47,17 +50,21 @@ function AnswerDetail({ answer }: { answer: Decisions.Answer }) {
   switch (answer.type) {
     case "noul":
       return (
-        <div className="space-y-2">
+        <>
           <Headline
             value={summarizeAnswer(answer)}
             detail={`${percent(answer.noul)} of raters would answer yes`}
           />
-          <Bar share={answer.noul} emphasized />
-        </div>
+          {/* As tall as one row of a distribution, so this bar lines up with
+              the first bar of the cards beside it. */}
+          <div className="grid h-4 items-center">
+            <Bar share={answer.noul} emphasized />
+          </div>
+        </>
       );
     case "choice":
       return (
-        <div className="space-y-3">
+        <>
           <Headline
             value={answer.choice}
             detail={`Confidence ${answer.confidence.toFixed(2)}`}
@@ -66,7 +73,7 @@ function AnswerDetail({ answer }: { answer: Decisions.Answer }) {
             items={Object.entries(answer.probabilities)}
             emphasized={answer.choice}
           />
-        </div>
+        </>
       );
     case "score": {
       // Levels are keyed by index, so they are ordered by number rather than
@@ -74,9 +81,8 @@ function AnswerDetail({ answer }: { answer: Decisions.Answer }) {
       const levels = Object.keys(answer.legend).sort(
         (a, b) => Number(a) - Number(b),
       );
-      const nearestLevel = String(Math.round(answer.score));
       return (
-        <div className="space-y-3">
+        <>
           <Headline
             value={answer.score.toFixed(1)}
             unit={`of ${String(levels.length - 1)}`}
@@ -87,9 +93,9 @@ function AnswerDetail({ answer }: { answer: Decisions.Answer }) {
               answer.legend[level] ?? level,
               answer.probabilities[level] ?? 0,
             ])}
-            emphasized={answer.legend[nearestLevel]}
+            emphasized={nearestLevel(answer)}
           />
-        </div>
+        </>
       );
     }
     default:

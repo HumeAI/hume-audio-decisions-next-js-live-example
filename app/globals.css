@@ -1,11 +1,25 @@
 @import "tailwindcss";
 
+/* The theme script in the root layout sets `data-theme` before the page
+   paints, so `dark:` follows the theme button rather than the system. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
   --muted: #52525b;
   --border: rgb(0 0 0 / 0.08);
   --subtle: rgb(0 0 0 / 0.04);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --muted: #a1a1aa;
+  --border: rgb(255 255 255 / 0.145);
+  --subtle: #1a1a1a;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -18,13 +32,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --muted: #a1a1aa;
-    --border: rgb(255 255 255 / 0.145);
-    --subtle: #1a1a1a;
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
   }
 }
 

@@ -2,7 +2,7 @@ import { useId } from "react";
 
 import { formatTime } from "@/lib/format-time";
 import type { NamedQuestion } from "@/lib/questions";
-import { type Chunk, CHUNK_MS } from "@/lib/recording";
+import type { Chunk } from "@/lib/recording";
 
 import { AnswerCard } from "./answer-card";
 
@@ -46,12 +46,7 @@ function AnswerBody({ chunk, questions }: AnswerPanelProps) {
   switch (chunk?.result.status) {
     case undefined:
     case "pending":
-      return (
-        <p className="text-sm text-muted">
-          Each {CHUNK_MS / 1000} seconds of audio gets its own answers, shown
-          here.
-        </p>
-      );
+      return null;
     case "failed":
       return (
         <p className="text-sm text-red-600 dark:text-red-400">

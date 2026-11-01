@@ -1,30 +1,36 @@
 import { BookIcon, MarkGithubIcon } from "@primer/octicons-react";
 import type { ReactNode } from "react";
 
+import { ICON_BUTTON_CLASS_NAME } from "./button";
+import { ThemeToggle } from "./theme-toggle";
+
 export function Header() {
   return (
     <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-border px-4">
       <h1 className="font-semibold tracking-tight">Audio Decisions Live</h1>
-      <nav aria-label="Project links">
-        <ul className="flex gap-1">
-          <li>
-            <IconLink
-              href="https://github.com/HumeAI/hume-audio-decisions-next-js-live-example"
-              label="Source code on GitHub"
-            >
-              <MarkGithubIcon size={20} />
-            </IconLink>
-          </li>
-          <li>
-            <IconLink
-              href="https://dev.hume.ai/decisions/cookbooks/answering-live-audio"
-              label="Cookbook guide"
-            >
-              <BookIcon size={20} />
-            </IconLink>
-          </li>
-        </ul>
-      </nav>
+      <div className="flex items-center gap-1">
+        <nav aria-label="Project links">
+          <ul className="flex gap-1">
+            <li>
+              <IconLink
+                href="https://github.com/HumeAI/hume-audio-decisions-next-js-live-example"
+                label="Source code on GitHub"
+              >
+                <MarkGithubIcon size={20} />
+              </IconLink>
+            </li>
+            <li>
+              <IconLink
+                href="https://dev.hume.ai/decisions/cookbooks/answering-live-audio"
+                label="Cookbook guide"
+              >
+                <BookIcon size={20} />
+              </IconLink>
+            </li>
+          </ul>
+        </nav>
+        <ThemeToggle />
+      </div>
     </header>
   );
 }
@@ -45,7 +51,7 @@ function IconLink({
       rel="noopener noreferrer"
       aria-label={label}
       title={label}
-      className="flex size-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-subtle hover:text-foreground"
+      className={`flex items-center justify-center transition-colors ${ICON_BUTTON_CLASS_NAME}`}
     >
       {children}
     </a>

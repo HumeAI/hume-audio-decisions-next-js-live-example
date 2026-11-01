@@ -3,7 +3,7 @@ import { type ReactNode, useEffect, useRef } from "react";
 // The waveform and the answer timeline sit in one horizontal scroll container
 // and line up only because they share this scale and label column.
 
-const PIXELS_PER_SECOND = 24;
+const PIXELS_PER_SECOND = 32;
 
 export const LABEL_COLUMN_CLASS_NAME =
   "sticky left-0 z-20 w-24 shrink-0 border-r border-border bg-background md:w-32";

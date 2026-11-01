@@ -4,6 +4,7 @@ import { type NamedQuestion, questionOptions } from "@/lib/questions";
 
 import { Button } from "./button";
 import { QuestionDialog } from "./question-dialog";
+import { TypePill } from "./type-pill";
 
 interface QuestionPanelProps {
   questions: NamedQuestion[];
@@ -33,18 +34,19 @@ export function QuestionPanel({
 
   return (
     <section aria-labelledby={headingId}>
-      <h2 id={headingId} className="text-sm font-semibold">
+      {/* On narrow screens, the button that opens the panel names it. */}
+      <h2 id={headingId} className="text-sm font-semibold max-md:sr-only">
         Questions
       </h2>
 
-      <ul className="mt-3 divide-y divide-border rounded-xl border border-border">
+      <ul className="divide-y divide-border rounded-xl border border-border md:mt-3">
         {questions.map(({ id, question }, index) => {
           const options = questionOptions(question);
           return (
             <li key={id} className="space-y-1 p-3">
-              <div className="flex items-baseline justify-between gap-3">
+              <div className="flex items-center justify-between gap-3">
                 <h3 className="truncate text-sm font-medium">{id}</h3>
-                <p className="shrink-0 text-xs text-muted">{question.type}</p>
+                <TypePill type={question.type} />
               </div>
               <p className="text-sm">{question.instructions}</p>
               {options.length > 0 && (

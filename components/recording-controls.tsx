@@ -96,10 +96,12 @@ export function RecordingControls({
             className="size-2 animate-pulse rounded-full bg-red-500 motion-reduce:animate-none"
           />
         )}
-        {positionMs !== null && !isRecording && (
-          <span className="text-muted">{formatSeconds(positionMs)} /</span>
-        )}
-        {formatSeconds(durationMs)}
+        <span>
+          {positionMs !== null && !isRecording && (
+            <span className="text-muted">{formatSeconds(positionMs)} / </span>
+          )}
+          {formatSeconds(durationMs)}
+        </span>
       </p>
       <p role="status" className="sr-only">
         {isRecording ? "Recording" : ""}

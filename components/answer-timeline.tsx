@@ -50,30 +50,41 @@ export function AnswerTimeline({
         style={{ width: toPixels(durationMs) }}
       >
         <ol className="flex h-full">
-          {chunks.map((chunk) => (
-            <li
-              key={chunk.index}
-              className="shrink-0"
-              style={{ width: toPixels(chunk.endMs - chunk.startMs) }}
-            >
-              <button
-                type="button"
-                disabled={!onSelectChunk}
-                onClick={() => {
-                  onSelectChunk?.(chunk);
-                }}
-                aria-current={chunk === currentChunk ? "time" : undefined}
-                className="flex h-full w-full flex-col border-r border-border text-left transition-colors enabled:hover:bg-subtle focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-foreground aria-[current=time]:bg-subtle"
+          {chunks.map((chunk) => {
+            const isCurrent = chunk === currentChunk;
+            return (
+              <li
+                key={chunk.index}
+                className="shrink-0"
+                style={{ width: toPixels(chunk.endMs - chunk.startMs) }}
               >
-                <span
-                  className={`${TIME_ROW_CLASS_NAME} px-2 text-xs text-muted tabular-nums`}
+                {/* The focus outline is drawn inside, since the scroller
+                    clips anything outside a chunk. */}
+                <button
+                  type="button"
+                  disabled={!onSelectChunk}
+                  onClick={() => {
+                    onSelectChunk?.(chunk);
+                  }}
+                  aria-current={isCurrent ? "time" : undefined}
+                  className="relative flex h-full w-full flex-col border-r border-border text-left transition-colors enabled:hover:bg-subtle focus-visible:-outline-offset-2 aria-[current=time]:bg-subtle"
                 >
-                  {formatTime(chunk.startMs)}
-                </span>
-                <ChunkAnswers chunk={chunk} questions={questions} />
-              </button>
-            </li>
-          ))}
+                  {isCurrent && (
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-0 top-0 h-0.5 bg-foreground"
+                    />
+                  )}
+                  <span
+                    className={`${TIME_ROW_CLASS_NAME} px-2 text-xs tabular-nums ${isCurrent ? "font-medium" : "text-muted"}`}
+                  >
+                    {formatTime(chunk.startMs)}
+                  </span>
+                  <ChunkAnswers chunk={chunk} questions={questions} />
+                </button>
+              </li>
+            );
+          })}
         </ol>
         {playheadMs !== null && <Playhead ms={playheadMs} />}
       </div>
@@ -103,13 +114,15 @@ function ChunkAnswers({
       const { answers } = chunk.result.response;
       return questions.map(({ id }) => {
         const answer = answers[id];
+        const summary = answer ? summarizeAnswer(answer) : "";
         return (
           <span
             key={id}
+            title={summary}
             className={`${ANSWER_ROW_CLASS_NAME} truncate px-2 text-sm`}
           >
             <span className="sr-only">{id}: </span>
-            {answer ? summarizeAnswer(answer) : ""}
+            {summary}
           </span>
         );
       });
