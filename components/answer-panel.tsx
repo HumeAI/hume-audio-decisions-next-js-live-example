@@ -31,7 +31,7 @@ export function AnswerPanel({ chunk, questions }: AnswerPanelProps) {
       {/* The call details move below the heading when the row is too narrow
           for both, so the run ID is never cut off. */}
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 id={headingId} aria-live="polite" className="font-semibold">
+        <h2 id={headingId} className="font-semibold">
           Answers{" "}
           {chunk && (
             <span className="text-xs font-normal text-muted tabular-nums">
