@@ -9,7 +9,7 @@ export function Header() {
         <ul className="flex gap-1">
           <li>
             <IconLink
-              href="https://github.com/HumeAI/hume-decisions-next-js-live-example"
+              href="https://github.com/HumeAI/hume-audio-decisions-next-js-live-example"
               label="Source code on GitHub"
             >
               <MarkGithubIcon size={20} />
