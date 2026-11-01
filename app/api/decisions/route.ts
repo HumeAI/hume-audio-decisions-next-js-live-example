@@ -13,10 +13,8 @@ function failure(status: number, message: string): Response {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  let form: FormData;
-  try {
-    form = await request.formData();
-  } catch {
+  const form = await request.formData().catch(() => null);
+  if (!form) {
     return failure(400, "Expected a multipart/form-data body.");
   }
 
@@ -34,10 +32,13 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   try {
-    const response = await new DecisionsClient().decisions.create({
-      file,
-      request: decisionsRequest,
-    });
+    // The browser cancels its requests when a recording is discarded. Passing
+    // the signal on cancels the API call as well, so the route does not wait
+    // on or retry answers that nobody will see.
+    const response = await new DecisionsClient().decisions.create(
+      { file, request: decisionsRequest },
+      { abortSignal: request.signal },
+    );
     return Response.json(response);
   } catch (error) {
     if (error instanceof DecisionsTimeoutError) {
