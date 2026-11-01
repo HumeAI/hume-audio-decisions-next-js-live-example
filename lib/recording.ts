@@ -1,5 +1,6 @@
 import type { Decisions } from "@humeai/audio-decisions";
 
+import { concatenate } from "./audio";
 import type { NamedQuestion } from "./questions";
 
 export const CHUNK_MS = 5_000;
@@ -17,6 +18,50 @@ export interface Chunk {
   startMs: number;
   endMs: number;
   result: ChunkResult;
+}
+
+/** The audio of one chunk, and where it falls in the recording. */
+export interface ChunkAudio {
+  index: number;
+  startMs: number;
+  endMs: number;
+  samples: Float32Array<ArrayBuffer>;
+}
+
+/**
+ * Collects captured blocks into chunks of at least `CHUNK_MS`. The returned
+ * function takes each block and returns the chunk it completes, if any.
+ *
+ * Blocks are never split, so a chunk runs slightly long when its blocks do not
+ * add up to exactly `CHUNK_MS`.
+ */
+export function createChunker() {
+  let blocks: Float32Array[] = [];
+  let startFrame = 0;
+  let endFrame = 0;
+  let index = 0;
+
+  return function addBlock(
+    samples: Float32Array,
+    sampleRate: number,
+  ): ChunkAudio | null {
+    blocks.push(samples);
+    endFrame += samples.length;
+    if (endFrame - startFrame < (CHUNK_MS / 1000) * sampleRate) {
+      return null;
+    }
+
+    const toMs = (frames: number) => (frames / sampleRate) * 1000;
+    const chunk: ChunkAudio = {
+      index: index++,
+      startMs: toMs(startFrame),
+      endMs: toMs(endFrame),
+      samples: concatenate(blocks),
+    };
+    blocks = [];
+    startFrame = endFrame;
+    return chunk;
+  };
 }
 
 export interface Recording {

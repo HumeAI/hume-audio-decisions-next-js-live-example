@@ -8,7 +8,12 @@ import {
   openMicrophone,
 } from "@/lib/microphone";
 import { buildRequest, type NamedQuestion } from "@/lib/questions";
-import { type Chunk, CHUNK_MS, type Recording } from "@/lib/recording";
+import {
+  type ChunkAudio,
+  type ChunkResult,
+  createChunker,
+  type Recording,
+} from "@/lib/recording";
 
 export type RecorderStatus = "idle" | "starting" | "recording";
 
@@ -41,12 +46,10 @@ export function useRecorder() {
     const controller = new AbortController();
     const { signal } = controller;
     const request = buildRequest(questions, context);
+    const addBlock = createChunker();
     let microphone: Microphone | null = null;
     let blocks: Float32Array[] = [];
-    let chunkBlocks: Float32Array[] = [];
-    let chunkStartFrame = 0;
     let capturedFrames = 0;
-    let nextIndex = 0;
 
     // Answers for a discarded recording can still arrive after a new one has
     // started, and must not land in it.
@@ -56,32 +59,43 @@ export function useRecorder() {
       }
     }
 
-    function sendChunk(sampleRate: number) {
-      const toMs = (frames: number) => (frames / sampleRate) * 1000;
-      const chunk: Chunk = {
-        index: nextIndex++,
-        startMs: toMs(chunkStartFrame),
-        endMs: toMs(capturedFrames),
-        result: { status: "pending" },
-      };
-      const samples = concatenate(chunkBlocks);
-      chunkBlocks = [];
-      chunkStartFrame = capturedFrames;
-      update((current) => ({ ...current, chunks: [...current.chunks, chunk] }));
+    async function sendChunk(
+      { samples, ...chunk }: ChunkAudio,
+      sampleRate: number,
+    ) {
+      update((current) => ({
+        ...current,
+        chunks: [
+          ...current.chunks,
+          { ...chunk, result: { status: "pending" } },
+        ],
+      }));
 
-      void askDecisions(samples, sampleRate, request, signal).then((result) => {
-        update((current) => ({
-          ...current,
-          chunks: current.chunks.map((existing) =>
-            existing.index === chunk.index ? { ...existing, result } : existing,
-          ),
-        }));
-      });
+      let result: ChunkResult;
+      try {
+        const response = await askDecisions(
+          samples,
+          sampleRate,
+          request,
+          signal,
+        );
+        result = { status: "answered", response };
+      } catch (error) {
+        result = {
+          status: "failed",
+          message: error instanceof Error ? error.message : String(error),
+        };
+      }
+      update((current) => ({
+        ...current,
+        chunks: current.chunks.map((existing) =>
+          existing.index === chunk.index ? { ...existing, result } : existing,
+        ),
+      }));
     }
 
     function receiveAudio(samples: Float32Array, sampleRate: number) {
       blocks.push(samples);
-      chunkBlocks.push(samples);
       capturedFrames += samples.length;
       const level = loudness(samples);
       const durationMs = (capturedFrames / sampleRate) * 1000;
@@ -91,8 +105,9 @@ export function useRecorder() {
         durationMs,
       }));
 
-      if (capturedFrames - chunkStartFrame >= (CHUNK_MS / 1000) * sampleRate) {
-        sendChunk(sampleRate);
+      const chunk = addBlock(samples, sampleRate);
+      if (chunk) {
+        void sendChunk(chunk, sampleRate);
       }
     }
 

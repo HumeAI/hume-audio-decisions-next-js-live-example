@@ -5,21 +5,11 @@ import {
   DecisionsTimeoutError,
 } from "@humeai/audio-decisions";
 
+import { errorBodyMessage } from "@/lib/error-body";
+
 /** Every failure is answered as `{ message }`, which the page shows as is. */
 function failure(status: number, message: string): Response {
   return Response.json({ message }, { status });
-}
-
-// The API's error bodies carry a message written for a person. The SDK's own
-// message also lists the status code and the whole body.
-function apiErrorMessage(error: DecisionsError): string {
-  const { body } = error;
-  return typeof body === "object" &&
-    body !== null &&
-    "message" in body &&
-    typeof body.message === "string"
-    ? body.message
-    : error.message;
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -54,7 +44,12 @@ export async function POST(request: Request): Promise<Response> {
       return failure(504, error.message);
     }
     if (error instanceof DecisionsError) {
-      return failure(error.statusCode ?? 502, apiErrorMessage(error));
+      // The API's error bodies carry a message written for a person. The SDK's
+      // own message also lists the status code and the whole body.
+      return failure(
+        error.statusCode ?? 502,
+        errorBodyMessage(error.body) ?? error.message,
+      );
     }
     // The SDK checks the request against the API's schema before sending it,
     // and throws a plain error when it does not match.
