@@ -26,15 +26,20 @@ export function AnswerPanel({ chunk, questions }: AnswerPanelProps) {
       aria-labelledby={headingId}
       className="flex h-[27rem] max-h-[60%] shrink-0 flex-col gap-3 p-4 md:pb-16"
     >
-      <div className="flex items-baseline justify-between gap-4">
+      {/* The call details move below the heading when the row is too narrow
+          for both, so the run ID is never cut off. */}
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2
           id={headingId}
           aria-live="polite"
-          className="text-base font-semibold tabular-nums"
+          className="text-base font-semibold"
         >
-          {chunk
-            ? `Answers for ${formatTime(chunk.startMs)} to ${formatTime(chunk.endMs)}`
-            : "Answers"}
+          Answers{" "}
+          {chunk && (
+            <span className="text-xs font-normal text-muted tabular-nums">
+              for {formatTime(chunk.startMs)} to {formatTime(chunk.endMs)}
+            </span>
+          )}
         </h2>
         {chunk?.result.status === "answered" && (
           <CallDetails response={chunk.result.response} />
@@ -82,8 +87,8 @@ function AnswerBody({ chunk, questions }: AnswerPanelProps) {
 
 function CallDetails({ response }: { response: Decisions.DecisionsResponse }) {
   return (
-    <div className="flex min-w-0 items-baseline gap-4 text-xs text-muted">
-      <p className="shrink-0 tabular-nums">
+    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs text-muted">
+      <p className="tabular-nums">
         {response.received.inputTokens.toLocaleString()} input tokens
       </p>
       <CopyRunId runId={response.runId} />
@@ -116,9 +121,9 @@ function CopyRunId({ runId }: { runId: string }) {
             setIsCopied(true);
           });
         }}
-        className="flex min-w-0 items-center gap-1.5 transition-colors hover:text-foreground"
+        className="flex items-center gap-1.5 transition-colors hover:text-foreground"
       >
-        <span className="truncate">Run ID {runId}</span>
+        Run ID {runId}
         {isCopied ? <CheckIcon size={12} /> : <CopyIcon size={12} />}
       </button>
       <p role="status" className="sr-only">

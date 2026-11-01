@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { concatenate, loudness } from "@/lib/audio";
+import { concatenate, loudness, toAudioBuffer } from "@/lib/audio";
 import { askDecisions } from "@/lib/decisions";
 import {
   type Microphone,
@@ -42,6 +42,7 @@ export function useRecorder() {
     const { signal } = controller;
     const request = buildRequest(questions, context);
     let microphone: Microphone | null = null;
+    let blocks: Float32Array[] = [];
     let chunkBlocks: Float32Array[] = [];
     let chunkStartFrame = 0;
     let capturedFrames = 0;
@@ -79,13 +80,13 @@ export function useRecorder() {
     }
 
     function receiveAudio(samples: Float32Array, sampleRate: number) {
+      blocks.push(samples);
       chunkBlocks.push(samples);
       capturedFrames += samples.length;
       const level = loudness(samples);
       const durationMs = (capturedFrames / sampleRate) * 1000;
       update((current) => ({
         ...current,
-        audio: [...current.audio, samples],
         levels: [...current.levels, level],
         durationMs,
       }));
@@ -101,9 +102,20 @@ export function useRecorder() {
       if (!microphone) {
         return;
       }
+      const { sampleRate } = microphone;
       microphone.close();
       microphone = null;
       setStatus("idle");
+
+      // An AudioBuffer cannot be empty, which the audio is when capture stops
+      // before the first block arrives.
+      if (blocks.length > 0) {
+        const audio = toAudioBuffer(concatenate(blocks), sampleRate);
+        update((current) => ({ ...current, audio }));
+      }
+      // The session is kept until the next recording starts, so the blocks
+      // would otherwise stay in memory alongside the buffer.
+      blocks = [];
     }
 
     sessionRef.current = {
@@ -130,8 +142,8 @@ export function useRecorder() {
       return;
     }
 
-    // The recording was cleared or replaced while the browser was still asking
-    // for microphone access.
+    // The recorder unmounted while the browser was still asking for microphone
+    // access.
     if (signal.aborted) {
       microphone.close();
       return;
@@ -139,21 +151,12 @@ export function useRecorder() {
 
     setRecording({
       questions,
-      sampleRate: microphone.sampleRate,
-      audio: [],
+      audio: null,
       levels: [],
       chunks: [],
       durationMs: 0,
     });
     setStatus("recording");
-  }
-
-  function clear() {
-    sessionRef.current?.discard();
-    sessionRef.current = null;
-    setRecording(null);
-    setError(null);
-    setStatus("idle");
   }
 
   return {
@@ -162,6 +165,5 @@ export function useRecorder() {
     error,
     start,
     stop: () => sessionRef.current?.stop(),
-    clear,
   };
 }

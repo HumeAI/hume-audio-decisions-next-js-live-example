@@ -29,25 +29,33 @@ export function concatenate(blocks: Float32Array[]): Float32Array<ArrayBuffer> {
   return result;
 }
 
+export function toAudioBuffer(
+  samples: Float32Array<ArrayBuffer>,
+  sampleRate: number,
+): AudioBuffer {
+  const buffer = new AudioBuffer({
+    length: samples.length,
+    numberOfChannels: 1,
+    sampleRate,
+  });
+  buffer.copyToChannel(samples, 0);
+  return buffer;
+}
+
 /** Converts mono samples to another rate with the browser's own resampler. */
 export async function resample(
   samples: Float32Array<ArrayBuffer>,
   fromRate: number,
   toRate: number,
 ): Promise<Float32Array> {
-  const buffer = new AudioBuffer({
-    length: samples.length,
-    numberOfChannels: 1,
-    sampleRate: fromRate,
-  });
-  buffer.copyToChannel(samples, 0);
-
   const context = new OfflineAudioContext(
     1,
     Math.round((samples.length * toRate) / fromRate),
     toRate,
   );
-  const source = new AudioBufferSourceNode(context, { buffer });
+  const source = new AudioBufferSourceNode(context, {
+    buffer: toAudioBuffer(samples, fromRate),
+  });
   source.connect(context.destination);
   source.start();
   const rendered = await context.startRendering();

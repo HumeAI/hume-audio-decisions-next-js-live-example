@@ -29,7 +29,6 @@ interface RecordingControlsProps {
   onRecord: () => void;
   onStop: () => void;
   onTogglePlayback: () => void;
-  onClear: () => void;
 }
 
 export function RecordingControls({
@@ -42,7 +41,6 @@ export function RecordingControls({
   onRecord,
   onStop,
   onTogglePlayback,
-  onClear,
 }: RecordingControlsProps) {
   const [isConfirming, setIsConfirming] = useState(false);
   const [skipConfirmation, setSkipConfirmation] = useStoredState(
@@ -97,10 +95,6 @@ export function RecordingControls({
           </span>
         </Button>
       )}
-
-      <Button disabled={!hasRecording || isRecording} onClick={onClear}>
-        Clear
-      </Button>
 
       <p className="ml-auto flex items-center gap-2 text-sm tabular-nums">
         {isRecording && (

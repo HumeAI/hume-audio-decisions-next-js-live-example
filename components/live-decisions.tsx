@@ -30,7 +30,7 @@ export function LiveDecisions() {
   );
   const recorder = useRecorder();
   const { recording } = recorder;
-  const playback = usePlayback(recording);
+  const playback = usePlayback(recording?.audio ?? null);
   const isCapturing = recorder.status !== "idle";
 
   // While recording, the playhead marks the live edge and the newest answers
@@ -46,11 +46,6 @@ export function LiveDecisions() {
   function record() {
     playback.reset();
     void recorder.start(questions, context);
-  }
-
-  function clear() {
-    playback.reset();
-    recorder.clear();
   }
 
   return (
@@ -84,7 +79,6 @@ export function LiveDecisions() {
             onRecord={record}
             onStop={recorder.stop}
             onTogglePlayback={playback.togglePlayback}
-            onClear={clear}
           />
         </div>
 

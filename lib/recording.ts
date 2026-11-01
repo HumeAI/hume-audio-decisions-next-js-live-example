@@ -25,10 +25,11 @@ export interface Recording {
    * questions being edited for the next recording change.
    */
   questions: NamedQuestion[];
-  /** The microphone's own rate, which the captured audio keeps for playback. */
-  sampleRate: number;
-  /** The captured audio as blocks of mono samples. */
-  audio: Float32Array[];
+  /**
+   * The captured audio at the microphone's own rate, ready to play once
+   * capture stops.
+   */
+  audio: AudioBuffer | null;
   /** The loudness of each block, from 0 to 1. */
   levels: number[];
   chunks: Chunk[];

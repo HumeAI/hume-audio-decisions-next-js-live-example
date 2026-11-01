@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-import { concatenate } from "@/lib/audio";
-import type { Recording } from "@/lib/recording";
-
-/** Plays a finished recording and tracks where in it the playhead is. */
-export function usePlayback(recording: Recording | null) {
+/** Plays recorded audio and tracks where in it the playhead is. */
+export function usePlayback(audio: AudioBuffer | null) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playheadMs, setPlayheadMs] = useState<number | null>(null);
   const stopPlayerRef = useRef<(() => void) | null>(null);
@@ -23,22 +20,15 @@ export function usePlayback(recording: Recording | null) {
   }
 
   function play(fromMs: number) {
-    if (!recording) {
+    if (!audio) {
       return;
     }
     halt();
-    const { sampleRate, durationMs } = recording;
+    const durationMs = audio.duration * 1000;
     const startMs = fromMs < durationMs ? fromMs : 0;
-    const samples = concatenate(recording.audio);
 
     const context = new AudioContext();
-    const buffer = new AudioBuffer({
-      length: samples.length,
-      numberOfChannels: 1,
-      sampleRate,
-    });
-    buffer.copyToChannel(samples, 0);
-    const source = new AudioBufferSourceNode(context, { buffer });
+    const source = new AudioBufferSourceNode(context, { buffer: audio });
     source.connect(context.destination);
     source.start(0, startMs / 1000);
     const startedAt = context.currentTime;
@@ -48,19 +38,15 @@ export function usePlayback(recording: Recording | null) {
       frame = requestAnimationFrame(tick);
     });
 
-    function stopPlayer() {
+    stopPlayerRef.current = () => {
       source.onended = null;
       cancelAnimationFrame(frame);
       void context.close();
-    }
-
+    };
     source.onended = () => {
-      stopPlayer();
-      stopPlayerRef.current = null;
-      setIsPlaying(false);
+      halt();
       setPlayheadMs(durationMs);
     };
-    stopPlayerRef.current = stopPlayer;
     setPlayheadMs(startMs);
     setIsPlaying(true);
   }
@@ -76,9 +62,10 @@ export function usePlayback(recording: Recording | null) {
       }
     },
     seek: (ms: number) => {
-      setPlayheadMs(ms);
       if (isPlaying) {
         play(ms);
+      } else {
+        setPlayheadMs(ms);
       }
     },
     reset: () => {
