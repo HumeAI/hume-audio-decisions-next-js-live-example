@@ -53,6 +53,7 @@ All questions in a request are answered together, so adding, removing or rewordi
 
 1. The API needs at least 5 seconds of audio in a request, so only full 5-second chunks are sent. Audio after the last full chunk is kept for playback only.
 2. Each chunk is one request, so a recording sends 12 requests a minute. Each organization can send 60 requests a minute, so about five recordings running at once reach the limit.
+3. A recording stops after 5 minutes, so it sends at most 60 requests.
 
 See [Limits](https://dev.hume.ai/decisions/docs/limits) for the rest.
 
@@ -67,6 +68,7 @@ See [Limits](https://dev.hume.ai/decisions/docs/limits) for the rest.
 
 1. The default questions and context are `DEFAULT_QUESTIONS` and `DEFAULT_CONTEXT` in `lib/questions.ts`. Once you edit the questions or the context in a tab, that tab keeps your version, so open a new tab to see changed defaults.
 2. The chunk length is `CHUNK_MS` in `lib/recording.ts`. The API accepts 5 seconds to 5 minutes of audio in a request. Longer chunks send fewer requests, and their answers arrive less often.
+3. The longest recording is `MAX_RECORDING_MS` in `lib/recording.ts`. The browser keeps the whole recording for playback, about 12 MB a minute at 48 kHz.
 
 ## Development
 

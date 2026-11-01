@@ -1,7 +1,7 @@
 import { type CSSProperties, useMemo } from "react";
 
 import { formatTime } from "@/lib/format-time";
-import { BLOCKS_PER_SECOND, CHUNK_MS } from "@/lib/recording";
+import { BLOCKS_PER_SECOND, CHUNK_MS, MAX_RECORDING_MS } from "@/lib/recording";
 
 import { LABEL_COLUMN_CLASS_NAME, Playhead, toPixels } from "./timeline-layout";
 
@@ -51,8 +51,8 @@ export function Waveform({
       </div>
       {durationMs === 0 ? (
         <p className="flex items-center px-3 text-sm text-muted">
-          Press Record and speak. Every {CHUNK_MS / 1000} seconds of audio is
-          sent with your questions.
+          Press Record and speak for up to {MAX_RECORDING_MS / 60_000} minutes.
+          Every {CHUNK_MS / 1000} seconds of audio is sent with your questions.
         </p>
       ) : (
         <div

@@ -5,6 +5,12 @@ import type { NamedQuestion } from "./questions";
 
 export const CHUNK_MS = 5_000;
 
+/**
+ * Recording stops on its own after this long, which limits the requests a
+ * forgotten tab sends and the audio it holds in memory.
+ */
+export const MAX_RECORDING_MS = 5 * 60_000;
+
 /** How often captured audio arrives, which is also one bar of the waveform. */
 export const BLOCKS_PER_SECOND = 8;
 

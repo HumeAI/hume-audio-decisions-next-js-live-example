@@ -12,6 +12,7 @@ import {
   type ChunkAudio,
   type ChunkResult,
   createChunker,
+  MAX_RECORDING_MS,
   type Recording,
 } from "@/lib/recording";
 
@@ -25,9 +26,9 @@ interface Session {
 }
 
 /**
- * Records the microphone and sends every 5 seconds of audio to the Audio
- * Decisions API as soon as it is captured, without waiting for earlier
- * answers.
+ * Records the microphone for up to 5 minutes and sends every 5 seconds of
+ * audio to the Audio Decisions API as soon as it is captured, without waiting
+ * for earlier answers.
  */
 export function useRecorder() {
   const [recording, setRecording] = useState<Recording | null>(null);
@@ -109,6 +110,9 @@ export function useRecorder() {
       const chunk = addBlock(samples, sampleRate);
       if (chunk) {
         void sendChunk(chunk, sampleRate);
+        if (chunk.endMs >= MAX_RECORDING_MS) {
+          stop();
+        }
       }
     }
 
