@@ -14,10 +14,9 @@ export function toPixels(ms: number): number {
 
 export function TimelineScroller({ children }: { children: ReactNode }) {
   // The left scroll padding matches the label column, so a playhead scrolled
-  // into view never ends up behind it. The height cap leaves room for the
-  // answers when there are many questions.
+  // into view never ends up behind it.
   return (
-    <div className="max-h-[45dvh] shrink-0 scroll-pr-4 scroll-pl-24 overflow-auto border-y border-border md:scroll-pl-32">
+    <div className="flex min-h-0 flex-1 scroll-pr-4 scroll-pl-24 flex-col overflow-auto border-y border-border md:scroll-pl-32">
       {children}
     </div>
   );

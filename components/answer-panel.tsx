@@ -15,10 +15,14 @@ interface AnswerPanelProps {
 export function AnswerPanel({ chunk, questions }: AnswerPanelProps) {
   const headingId = useId();
 
+  // A fixed height keeps the timeline the same size with or without answers.
+  // It fits the cards of the default questions, and more cards scroll. The
+  // bottom padding matches the side panel's, so the cards end level with the
+  // context field.
   return (
     <section
       aria-labelledby={headingId}
-      className="flex min-h-0 flex-1 flex-col gap-3 p-4"
+      className="flex h-[26rem] max-h-[55%] shrink-0 flex-col gap-3 p-4 md:pb-12"
     >
       <div className="flex items-baseline justify-between gap-4">
         <h2
@@ -56,11 +60,14 @@ function AnswerBody({ chunk, questions }: AnswerPanelProps) {
     case "answered": {
       const { answers } = chunk.result.response;
       return (
-        <div className="grid min-h-0 auto-rows-min grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-4 overflow-y-auto">
-          {questions.map((question) => (
+        // The last row of each card takes the spare height, so the cards
+        // reach the bottom of the panel.
+        <div className="grid min-h-0 flex-1 auto-rows-[min-content_min-content_1fr] grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-4 overflow-y-auto">
+          {questions.map((question, index) => (
             <AnswerCard
               key={question.id}
               question={question}
+              number={index + 1}
               answer={answers[question.id]}
             />
           ))}

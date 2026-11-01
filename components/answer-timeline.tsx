@@ -3,6 +3,7 @@ import { formatTime } from "@/lib/format-time";
 import type { NamedQuestion } from "@/lib/questions";
 import type { Chunk } from "@/lib/recording";
 
+import { QuestionLabel } from "./question-label";
 import { LABEL_COLUMN_CLASS_NAME, Playhead, toPixels } from "./timeline-layout";
 
 // The question labels and the chunk columns are separate stacks that line up
@@ -34,13 +35,13 @@ export function AnswerTimeline({
     <div className="flex">
       <div className={LABEL_COLUMN_CLASS_NAME}>
         <div className={TIME_ROW_CLASS_NAME} />
-        {questions.map(({ id }) => (
+        {questions.map(({ id }, index) => (
           <div
             key={id}
             title={id}
             className={`${ANSWER_ROW_CLASS_NAME} truncate px-3 text-sm font-medium`}
           >
-            {id}
+            <QuestionLabel id={id} number={index + 1} />
           </div>
         ))}
       </div>

@@ -12,8 +12,8 @@ describe("buildRequest", () => {
     const request = buildRequest(DEFAULT_QUESTIONS, "A podcast.");
 
     expect(Object.keys(request.questions)).toEqual([
-      "emotion",
       "speaking",
+      "emotion",
       "energy",
     ]);
     expect(request.context).toBe("A podcast.");

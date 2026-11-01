@@ -44,7 +44,9 @@ export function Waveform({
   );
 
   return (
-    <div className="sticky top-0 z-30 flex h-[clamp(5rem,18dvh,10rem)] border-b border-border bg-background">
+    // The waveform takes any height the timeline has to spare, and keeps a
+    // minimum when the question rows need the rest.
+    <div className="sticky top-0 z-30 flex min-h-[clamp(4rem,12dvh,10rem)] flex-1 border-b border-border bg-background">
       <div
         className={`${LABEL_COLUMN_CLASS_NAME} flex items-center px-3 text-sm font-medium`}
       >

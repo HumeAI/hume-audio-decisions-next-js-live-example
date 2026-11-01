@@ -36,7 +36,9 @@ export function SidePanel({ title, children, footer }: SidePanelProps) {
         className={`${isOpen ? "flex" : "hidden"} max-h-[40dvh] min-h-0 flex-1 flex-col border-t border-border md:flex md:max-h-none md:border-t-0`}
       >
         <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div>
-        <div className="shrink-0 border-t border-border p-4">{footer}</div>
+        <div className="shrink-0 border-t border-border p-4 md:pb-12">
+          {footer}
+        </div>
       </div>
     </aside>
   );

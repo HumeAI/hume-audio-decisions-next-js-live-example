@@ -4,16 +4,20 @@ import { useId } from "react";
 import { nearestLevel, summarizeAnswer } from "@/lib/answers";
 import type { NamedQuestion } from "@/lib/questions";
 
+import { QuestionLabel } from "./question-label";
+
 function percent(share: number): string {
   return `${String(Math.round(share * 100))}%`;
 }
 
 interface AnswerCardProps {
   question: NamedQuestion;
+  /** The question's position in the list, counting from 1. */
+  number: number;
   answer: Decisions.Answer | undefined;
 }
 
-export function AnswerCard({ question, answer }: AnswerCardProps) {
+export function AnswerCard({ question, number, answer }: AnswerCardProps) {
   const titleId = useId();
 
   // A card spans three rows of the answer grid and shares them through a
@@ -27,7 +31,7 @@ export function AnswerCard({ question, answer }: AnswerCardProps) {
       <header className="space-y-1.5">
         <div className="flex items-baseline justify-between gap-3">
           <h3 id={titleId} className="truncate font-medium">
-            {question.id}
+            <QuestionLabel id={question.id} number={number} />
           </h3>
           <p className="shrink-0 text-xs text-muted">
             {question.question.type}

@@ -30,6 +30,10 @@ export const MAX_CONTEXT_LENGTH = 1_000;
 
 export const DEFAULT_QUESTIONS: NamedQuestion[] = [
   {
+    id: "speaking",
+    question: { type: "noul", instructions: "Is someone speaking?" },
+  },
+  {
     id: "emotion",
     question: {
       type: "choice",
@@ -41,10 +45,6 @@ export const DEFAULT_QUESTIONS: NamedQuestion[] = [
         { name: "Neutral" },
       ],
     },
-  },
-  {
-    id: "speaking",
-    question: { type: "noul", instructions: "Is someone speaking?" },
   },
   {
     id: "energy",

@@ -4,6 +4,7 @@ import type { NamedQuestion } from "@/lib/questions";
 
 import { Button } from "./button";
 import { QuestionDialog } from "./question-dialog";
+import { QuestionLabel } from "./question-label";
 import { QuestionOptions } from "./question-options";
 
 interface QuestionPanelProps {
@@ -39,11 +40,13 @@ export function QuestionPanel({
         Questions
       </h2>
 
-      <ul className="divide-y divide-border rounded-xl border border-border md:mt-3">
+      <ol className="divide-y divide-border rounded-xl border border-border md:mt-3">
         {questions.map(({ id, question }, index) => (
           <li key={id} className="space-y-1 p-3">
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="truncate text-sm font-medium">{id}</h3>
+              <h3 className="truncate text-sm font-medium">
+                <QuestionLabel id={id} number={index + 1} />
+              </h3>
               <p className="shrink-0 text-xs text-muted">{question.type}</p>
             </div>
             <p className="text-sm">{question.instructions}</p>
@@ -76,7 +79,7 @@ export function QuestionPanel({
             </div>
           </li>
         ))}
-      </ul>
+      </ol>
 
       <div className="mt-3 flex items-center gap-3">
         <Button
