@@ -10,10 +10,6 @@ import {
 import { buildRequest, type NamedQuestion } from "@/lib/questions";
 import { type Chunk, CHUNK_MS, type Recording } from "@/lib/recording";
 
-// A recording usually stops partway through a chunk. A shorter remainder gives
-// the model too little to answer from, so it is not sent.
-const MIN_FINAL_CHUNK_MS = 1_000;
-
 export type RecorderStatus = "idle" | "starting" | "recording";
 
 interface Session {
@@ -99,18 +95,14 @@ export function useRecorder() {
       }
     }
 
+    // Only full chunks are sent, so audio after the last one is kept for
+    // playback but never answered.
     function stop() {
       if (!microphone) {
         return;
       }
-      const { sampleRate } = microphone;
       microphone.close();
       microphone = null;
-      const remainingMs =
-        ((capturedFrames - chunkStartFrame) / sampleRate) * 1000;
-      if (!signal.aborted && remainingMs >= MIN_FINAL_CHUNK_MS) {
-        sendChunk(sampleRate);
-      }
       setStatus("idle");
     }
 

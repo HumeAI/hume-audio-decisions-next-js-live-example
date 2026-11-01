@@ -34,7 +34,7 @@ A Next.js example that answers questions about live microphone audio with the [A
 ## Using the app
 
 1. Press **Record** and speak. The three default questions are enough to see the app work.
-2. Every 5 seconds of audio is sent with the questions. Answers appear on the timeline as they arrive, and the cards below show the newest answers in full.
+2. Every 5 seconds of audio is sent with the questions. Answers appear on the timeline as they arrive, and the cards below show the newest answers in full. Audio after the last full 5 seconds is not sent.
 3. Press **Stop**, then click a chunk or the waveform to see that chunk's answers. **Play** replays the recording from the playhead.
 4. Add, edit or remove questions and edit the optional **Context** between recordings. They are kept for the browser tab, so a refresh keeps them.
 
