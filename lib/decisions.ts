@@ -5,8 +5,8 @@ import { errorBodyMessage } from "./error-body";
 import { encodeWav } from "./wav";
 
 /**
- * Sends one chunk of audio to the app's API route, which calls the Decisions
- * API with the SDK so the API key never reaches the browser.
+ * Sends one chunk of audio to the app's API route, which calls the Audio
+ * Decisions API with the SDK so the API key never reaches the browser.
  */
 export async function askDecisions(
   samples: Float32Array<ArrayBuffer>,

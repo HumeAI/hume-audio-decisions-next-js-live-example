@@ -27,7 +27,9 @@ function postChunk(request: string): Promise<Response> {
   );
 }
 
-/** Stands in for the Decisions API, which the SDK reaches with `fetch`. */
+/**
+ * Stands in for the Audio Decisions API, which the SDK reaches with `fetch`.
+ */
 function stubApi(status: number, body: unknown) {
   const api = vi.fn(() => Promise.resolve(Response.json(body, { status })));
   vi.stubGlobal("fetch", api);
