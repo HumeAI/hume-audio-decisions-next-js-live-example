@@ -81,7 +81,20 @@ export function RecordingControls({
       {hasRecording && !isRecording && (
         <Button onClick={onTogglePlayback}>
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
-          {isPlaying ? "Pause" : "Play"}
+          {/* Both words take up the same cell, so the button keeps the width
+              of the longer one as it toggles. */}
+          <span className="grid text-left">
+            <span
+              className={`col-start-1 row-start-1 ${isPlaying ? "invisible" : ""}`}
+            >
+              Play
+            </span>
+            <span
+              className={`col-start-1 row-start-1 ${isPlaying ? "" : "invisible"}`}
+            >
+              Pause
+            </span>
+          </span>
         </Button>
       )}
 

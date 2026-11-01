@@ -1,3 +1,4 @@
+import { PencilIcon, PlusIcon, XIcon } from "@primer/octicons-react";
 import { useId, useState } from "react";
 
 import type { NamedQuestion } from "@/lib/questions";
@@ -53,7 +54,7 @@ export function QuestionPanel({
             <div className="pt-1">
               <QuestionOptions question={question} />
             </div>
-            <div className="flex gap-4 pt-1.5">
+            <div className="flex items-center justify-between pt-1.5">
               <Button
                 variant="text"
                 disabled={disabled}
@@ -62,20 +63,26 @@ export function QuestionPanel({
                 }}
                 aria-label={`Edit ${id}`}
               >
+                <PencilIcon />
                 Edit
               </Button>
-              <Button
-                variant="text"
-                disabled={disabled || questions.length === 1}
-                onClick={() => {
-                  onQuestionsChange(
-                    questions.filter((_, other) => other !== index),
-                  );
-                }}
-                aria-label={`Remove ${id}`}
-              >
-                Remove
-              </Button>
+              {/* The negative margins keep the row as short as the Edit
+                  button and line the icon up with the card's right edge. */}
+              <div className="-my-1 -mr-2.5">
+                <Button
+                  variant="icon"
+                  disabled={disabled || questions.length === 1}
+                  onClick={() => {
+                    onQuestionsChange(
+                      questions.filter((_, other) => other !== index),
+                    );
+                  }}
+                  aria-label={`Remove ${id}`}
+                  title="Remove"
+                >
+                  <XIcon />
+                </Button>
+              </div>
             </div>
           </li>
         ))}
@@ -88,6 +95,7 @@ export function QuestionPanel({
             setEditing("new");
           }}
         >
+          <PlusIcon />
           Add question
         </Button>
         {disabled && (

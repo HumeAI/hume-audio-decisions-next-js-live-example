@@ -1,4 +1,5 @@
-import { useId } from "react";
+import { CheckIcon, CopyIcon } from "@primer/octicons-react";
+import { useEffect, useId, useState } from "react";
 
 import { formatTime } from "@/lib/format-time";
 import type { NamedQuestion } from "@/lib/questions";
@@ -22,7 +23,7 @@ export function AnswerPanel({ chunk, questions }: AnswerPanelProps) {
   return (
     <section
       aria-labelledby={headingId}
-      className="flex h-[26rem] max-h-[55%] shrink-0 flex-col gap-3 p-4 md:pb-12"
+      className="flex h-[27rem] max-h-[60%] shrink-0 flex-col gap-3 p-4 md:pb-16"
     >
       <div className="flex items-baseline justify-between gap-4">
         <h2
@@ -35,10 +36,7 @@ export function AnswerPanel({ chunk, questions }: AnswerPanelProps) {
             : "Answers"}
         </h2>
         {chunk?.result.status === "answered" && (
-          <p className="truncate text-xs text-muted">
-            Run ID{" "}
-            <span className="select-all">{chunk.result.response.runId}</span>
-          </p>
+          <CopyRunId runId={chunk.result.response.runId} />
         )}
       </div>
       <AnswerBody chunk={chunk} questions={questions} />
@@ -79,4 +77,41 @@ function AnswerBody({ chunk, questions }: AnswerPanelProps) {
       );
     }
   }
+}
+
+function CopyRunId({ runId }: { runId: string }) {
+  const [isCopied, setIsCopied] = useState(false);
+
+  useEffect(() => {
+    if (!isCopied) {
+      return;
+    }
+    const timeout = setTimeout(() => {
+      setIsCopied(false);
+    }, 2000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [isCopied]);
+
+  return (
+    <>
+      <button
+        type="button"
+        title="Copy run ID"
+        onClick={() => {
+          void navigator.clipboard.writeText(runId).then(() => {
+            setIsCopied(true);
+          });
+        }}
+        className="flex min-w-0 items-center gap-1.5 text-xs text-muted transition-colors hover:text-foreground"
+      >
+        <span className="truncate">Run ID {runId}</span>
+        {isCopied ? <CheckIcon size={12} /> : <CopyIcon size={12} />}
+      </button>
+      <p role="status" className="sr-only">
+        {isCopied ? "Run ID copied" : ""}
+      </p>
+    </>
+  );
 }

@@ -9,7 +9,7 @@ import { LABEL_COLUMN_CLASS_NAME, Playhead, toPixels } from "./timeline-layout";
 // The question labels and the chunk columns are separate stacks that line up
 // only because they share these row heights.
 const TIME_ROW_CLASS_NAME = "h-7 leading-7";
-const ANSWER_ROW_CLASS_NAME = "h-9 leading-9";
+const ANSWER_ROW_CLASS_NAME = "h-10 leading-10";
 
 interface AnswerTimelineProps {
   /** The questions the chunks were asked with, one row each. */

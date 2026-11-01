@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Audio Decisions Live",
+  title: "Live Audio Decisions",
   description:
     "Ask questions about live microphone audio and see the answers on a timeline.",
 };
