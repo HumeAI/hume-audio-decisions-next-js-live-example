@@ -1,39 +1,32 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  buildQuestion,
-  buildRequest,
-  DEFAULT_QUESTIONS,
-  questionErrors,
-  questionOptions,
-} from "./questions";
+import { buildRequest, type LiveQuestion, questionErrors } from "./questions";
 
 describe("buildRequest", () => {
-  it("keys each question by its name", () => {
-    const request = buildRequest(DEFAULT_QUESTIONS, "A podcast.");
+  it("keys each question by its ID", () => {
+    const laughing: LiveQuestion = {
+      type: "noul",
+      instructions: "Is someone laughing?",
+    };
+    const pace: LiveQuestion = {
+      type: "score",
+      instructions: "How fast is the speech?",
+      criteria: ["Slow", "Fast"],
+    };
 
-    expect(Object.keys(request.questions)).toEqual([
-      "speaking",
-      "emotion",
-      "energy",
-    ]);
-    expect(request.context).toBe("A podcast.");
+    const request = buildRequest(
+      [
+        { id: "laughing", question: laughing },
+        { id: "pace", question: pace },
+      ],
+      "A podcast.",
+    );
+
+    expect(request).toEqual({
+      context: "A podcast.",
+      questions: { laughing, pace },
+    });
   });
-
-  it("leaves out blank context", () => {
-    expect(buildRequest(DEFAULT_QUESTIONS, "  ").context).toBeUndefined();
-  });
-});
-
-describe("buildQuestion", () => {
-  it.each(["choice", "score"] as const)(
-    "keeps the options of a %s question in order",
-    (type) => {
-      const question = buildQuestion(type, "How energetic?", ["Low", "High"]);
-
-      expect(questionOptions(question)).toEqual(["Low", "High"]);
-    },
-  );
 });
 
 describe("questionErrors", () => {

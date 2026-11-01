@@ -23,13 +23,7 @@ function chunk(index: number, result: ChunkResult): Chunk {
 }
 
 describe("latestSettledChunk", () => {
-  it("keeps the previous answers while the newest chunk is pending", () => {
-    const chunks = [chunk(0, ANSWERED), chunk(1, { status: "pending" })];
-
-    expect(latestSettledChunk(chunks, Infinity)).toBe(chunks[0]);
-  });
-
-  it("shows a failed chunk until the next answers arrive", () => {
+  it("skips a pending chunk but not a failed one", () => {
     const chunks = [
       chunk(0, ANSWERED),
       chunk(1, { status: "failed", message: "Failed." }),
