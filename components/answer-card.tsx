@@ -101,18 +101,13 @@ function AnswerDetail({
       const level = topLevel(answer);
       return (
         <>
-          <Headline
-            value={level}
-            details={[
-              `Mean level ${answer.score.toFixed(1)} of 0 to ${String(levels.length - 1)}`,
-              agreement(answer.confidence),
-            ]}
-          />
-          <Distribution
-            items={levels.map((index) => [
+          <Headline value={level} details={[agreement(answer.confidence)]} />
+          <ScoreColumns
+            levels={levels.map((index) => [
               answer.legend[index] ?? index,
               answer.probabilities[index] ?? 0,
             ])}
+            mean={answer.score}
             emphasized={level}
           />
         </>
@@ -187,5 +182,82 @@ function Bar({ share, emphasized }: { share: number; emphasized: boolean }) {
         style={{ width: percent(share) }}
       />
     </span>
+  );
+}
+
+/**
+ * Each level as a column, lowest first. Columns rather than rows let the mean
+ * level, which usually falls between two levels, be marked on an axis beneath
+ * them.
+ */
+function ScoreColumns({
+  levels,
+  mean,
+  emphasized,
+}: {
+  levels: [label: string, share: number][];
+  mean: number;
+  emphasized: string;
+}) {
+  // Level indices count from 0 and each sits at the center of its column.
+  function center(level: number): string {
+    return `${String(((level + 0.5) / levels.length) * 100)}%`;
+  }
+  // The mean's label goes on whichever side of its dot has more room.
+  const labelStyle =
+    mean < (levels.length - 1) / 2
+      ? { left: `calc(${center(mean)} + 0.625rem)` }
+      : { right: `calc(100% - ${center(mean)} + 0.625rem)` };
+
+  return (
+    <div>
+      <ol className="flex">
+        {levels.map(([label, share]) => {
+          const isEmphasized = label === emphasized;
+          return (
+            <li
+              key={label}
+              className="flex min-w-0 flex-1 flex-col items-center gap-1 text-xs"
+            >
+              <span className="text-muted tabular-nums">{percent(share)}</span>
+              <span
+                aria-hidden
+                className="flex h-12 w-2 items-end overflow-hidden rounded-full bg-border"
+              >
+                <span
+                  className={`w-full rounded-full ${isEmphasized ? "bg-foreground" : "bg-muted/50"}`}
+                  style={{ height: percent(share) }}
+                />
+              </span>
+              <span
+                title={label}
+                className={`w-full truncate text-center ${isEmphasized ? "font-medium" : "text-muted"}`}
+              >
+                {label}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+      <div className="relative mt-1.5 h-4">
+        <span
+          aria-hidden
+          className="absolute top-1/2 h-px bg-border"
+          style={{ left: center(0), right: center(0) }}
+        />
+        <span
+          aria-hidden
+          className="absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground"
+          style={{ left: center(mean) }}
+        />
+        {/* The background hides the axis behind the label. */}
+        <span
+          className="absolute top-0 bg-background px-1 text-xs whitespace-nowrap text-muted tabular-nums"
+          style={labelStyle}
+        >
+          Mean level {mean.toFixed(1)}
+        </span>
+      </div>
+    </div>
   );
 }
