@@ -88,7 +88,7 @@ export function QuestionDialog({
       <form onSubmit={handleSubmit} className="mt-4 space-y-5">
         <div className="space-y-1.5">
           <label htmlFor={`${fieldIds}-id`} className="text-sm font-medium">
-            Name
+            Question ID
           </label>
           <input
             id={`${fieldIds}-id`}
@@ -106,7 +106,7 @@ export function QuestionDialog({
           <p id={`${fieldIds}-id-hint`} className="text-sm text-muted">
             {idIsTaken ? (
               <span className="text-red-600 dark:text-red-400">
-                Another question already uses this name.
+                Another question already uses this ID.
               </span>
             ) : (
               "Labels the timeline row and keys the answer in the response."

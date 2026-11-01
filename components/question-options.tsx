@@ -46,7 +46,7 @@ function Segments({
     <div className="space-y-1">
       <ol
         aria-label={label}
-        className="flex divide-x divide-border overflow-hidden rounded-md border border-border"
+        className="flex divide-x divide-border overflow-hidden rounded-full border border-border"
       >
         {items.map((item) => (
           <li

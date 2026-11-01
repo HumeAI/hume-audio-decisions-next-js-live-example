@@ -36,25 +36,37 @@ export function QuestionPanel({
 
   return (
     <section aria-labelledby={headingId}>
-      {/* On narrow screens, the button that opens the panel names it. */}
-      <h2 id={headingId} className="text-base font-semibold max-md:sr-only">
-        Questions
-      </h2>
+      <div className="flex items-center justify-between">
+        {/* On narrow screens, the button that opens the panel names it. */}
+        <h2 id={headingId} className="text-base font-semibold max-md:sr-only">
+          Questions
+        </h2>
+        <Button
+          variant="text"
+          disabled={disabled}
+          onClick={() => {
+            setEditing("new");
+          }}
+        >
+          <PlusIcon />
+          Add question
+        </Button>
+      </div>
 
-      <ol className="divide-y divide-border rounded-xl border border-border md:mt-3">
+      <ol className="mt-3 divide-y divide-border rounded-xl border border-border">
         {questions.map(({ id, question }, index) => (
-          <li key={id} className="space-y-1 p-3">
-            <div className="flex items-baseline justify-between gap-3">
-              <h3 className="truncate text-sm font-medium">
-                <QuestionLabel id={id} number={index + 1} />
-              </h3>
-              <p className="shrink-0 text-xs text-muted">{question.type}</p>
+          <li key={id} className="space-y-3 px-4 pt-5 pb-4">
+            <div className="space-y-1">
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="truncate text-base font-medium">
+                  <QuestionLabel id={id} number={index + 1} />
+                </h3>
+                <p className="shrink-0 text-xs text-muted">{question.type}</p>
+              </div>
+              <p className="text-sm">{question.instructions}</p>
             </div>
-            <p className="text-sm">{question.instructions}</p>
-            <div className="pt-1">
-              <QuestionOptions question={question} />
-            </div>
-            <div className="flex items-center justify-between pt-1.5">
+            <QuestionOptions question={question} />
+            <div className="flex items-center justify-between">
               <Button
                 variant="text"
                 disabled={disabled}
@@ -63,12 +75,12 @@ export function QuestionPanel({
                 }}
                 aria-label={`Edit ${id}`}
               >
-                <PencilIcon />
-                Edit
+                <PencilIcon size={12} />
+                <span className="text-xs">Edit</span>
               </Button>
               {/* The negative margins keep the row as short as the Edit
                   button and line the icon up with the card's right edge. */}
-              <div className="-my-1 -mr-2.5">
+              <div className="-my-1.5 -mr-2.5">
                 <Button
                   variant="icon"
                   disabled={disabled || questions.length === 1}
@@ -88,20 +100,9 @@ export function QuestionPanel({
         ))}
       </ol>
 
-      <div className="mt-3 flex items-center gap-3">
-        <Button
-          disabled={disabled}
-          onClick={() => {
-            setEditing("new");
-          }}
-        >
-          <PlusIcon />
-          Add question
-        </Button>
-        {disabled && (
-          <p className="text-sm text-muted">Locked while recording.</p>
-        )}
-      </div>
+      {disabled && (
+        <p className="mt-3 text-sm text-muted">Locked while recording.</p>
+      )}
 
       {editing !== null && (
         <QuestionDialog

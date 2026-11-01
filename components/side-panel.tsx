@@ -18,7 +18,7 @@ export function SidePanel({ title, children, footer }: SidePanelProps) {
   const contentId = useId();
 
   return (
-    <aside className="flex shrink-0 flex-col border-b border-border md:w-80 md:border-r md:border-b-0">
+    <aside className="flex shrink-0 flex-col border-b border-border md:w-84 md:border-r md:border-b-0">
       <button
         type="button"
         aria-expanded={isOpen}
