@@ -85,6 +85,53 @@ export function buildQuestion(
   }
 }
 
+export function optionNoun(type: QuestionType): string {
+  return type === "score" ? "level" : "option";
+}
+
+/** What stops a question from being saved, keyed by the field to fix. */
+export interface QuestionErrors {
+  id?: string;
+  instructions?: string;
+  options?: string;
+}
+
+/**
+ * Checks the question dialog's fields before they are saved. Text is checked
+ * trimmed, since the browser's `required` check accepts a field of only
+ * spaces.
+ */
+export function questionErrors(
+  fields: {
+    id: string;
+    type: QuestionType;
+    instructions: string;
+    options: string[];
+  },
+  takenIds: string[],
+): QuestionErrors {
+  const errors: QuestionErrors = {};
+  const id = fields.id.trim();
+  if (id === "") {
+    errors.id = "Enter an ID.";
+  } else if (takenIds.includes(id)) {
+    errors.id = "Another question already uses this ID.";
+  }
+  if (fields.instructions.trim() === "") {
+    errors.instructions = "Enter a question.";
+  }
+  if (fields.type !== "noul") {
+    const options = fields.options.map((option) => option.trim());
+    const noun = optionNoun(fields.type);
+    if (options.includes("")) {
+      errors.options = `Fill in every ${noun}.`;
+    } else if (new Set(options).size < options.length) {
+      errors.options = `Each ${noun} must be different.`;
+    }
+  }
+  return errors;
+}
+
 /** The `request` part sent with every chunk of a recording. */
 export function buildRequest(
   questions: NamedQuestion[],

@@ -4,6 +4,9 @@ import {
   buildQuestion,
   MIN_OPTIONS,
   type NamedQuestion,
+  optionNoun,
+  type QuestionErrors,
+  questionErrors,
   QUESTION_TYPES,
   type QuestionType,
   questionOptions,
@@ -52,14 +55,19 @@ export function QuestionDialog({
       existing.length > 0 ? existing : Array<string>(MIN_OPTIONS).fill("");
     return texts.map(optionField);
   });
+  const [hasTriedSaving, setHasTriedSaving] = useState(false);
   const fieldIds = useId();
 
   const usesOptions = type !== "noul";
-  const optionNoun = type === "score" ? "level" : "option";
+  const noun = optionNoun(type);
   const optionTexts = options.map((option) => option.text.trim());
-  const filledOptions = optionTexts.filter((text) => text !== "");
-  const idIsTaken = takenIds.includes(id.trim());
-  const optionsRepeat = new Set(filledOptions).size < filledOptions.length;
+  const errors = questionErrors(
+    { id, type, instructions, options: optionTexts },
+    takenIds,
+  );
+  // Problems show once saving has been tried, so a new question does not open
+  // with every field marked as missing.
+  const shownErrors: QuestionErrors = hasTriedSaving ? errors : {};
 
   function updateOption(key: string, text: string) {
     setOptions((current) =>
@@ -71,7 +79,8 @@ export function QuestionDialog({
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (idIsTaken || (usesOptions && optionsRepeat)) {
+    if (Object.keys(errors).length > 0) {
+      setHasTriedSaving(true);
       return;
     }
     onSave({
@@ -99,14 +108,14 @@ export function QuestionDialog({
             }}
             placeholder="speaking"
             autoComplete="off"
-            aria-invalid={idIsTaken}
+            aria-invalid={shownErrors.id !== undefined}
             aria-describedby={`${fieldIds}-id-hint`}
             className={FIELD_CLASS_NAME}
           />
           <p id={`${fieldIds}-id-hint`} className="text-sm text-muted">
-            {idIsTaken ? (
+            {shownErrors.id ? (
               <span className="text-red-600 dark:text-red-400">
-                Another question already uses this ID.
+                {shownErrors.id}
               </span>
             ) : (
               "Labels the timeline row and keys the answer in the response."
@@ -153,8 +162,22 @@ export function QuestionDialog({
               setInstructions(event.target.value);
             }}
             placeholder="Is someone speaking?"
+            aria-invalid={shownErrors.instructions !== undefined}
+            aria-describedby={
+              shownErrors.instructions
+                ? `${fieldIds}-instructions-error`
+                : undefined
+            }
             className={`${FIELD_CLASS_NAME} resize-none`}
           />
+          {shownErrors.instructions && (
+            <p
+              id={`${fieldIds}-instructions-error`}
+              className="text-sm text-red-600 dark:text-red-400"
+            >
+              {shownErrors.instructions}
+            </p>
+          )}
         </div>
 
         {usesOptions && (
@@ -171,7 +194,7 @@ export function QuestionDialog({
                     onChange={(event) => {
                       updateOption(option.key, event.target.value);
                     }}
-                    aria-label={`${optionNoun} ${String(index + 1)}`}
+                    aria-label={`${noun} ${String(index + 1)}`}
                     autoComplete="off"
                     className={FIELD_CLASS_NAME}
                   />
@@ -183,7 +206,7 @@ export function QuestionDialog({
                         current.filter(({ key }) => key !== option.key),
                       );
                     }}
-                    aria-label={`Remove ${optionNoun} ${String(index + 1)}`}
+                    aria-label={`Remove ${noun} ${String(index + 1)}`}
                   >
                     Remove
                   </Button>
@@ -194,12 +217,12 @@ export function QuestionDialog({
               id={`${fieldIds}-options-hint`}
               className="mt-1.5 text-sm text-muted"
             >
-              {optionsRepeat ? (
+              {shownErrors.options ? (
                 <span className="text-red-600 dark:text-red-400">
-                  Each {optionNoun} must be different.
+                  {shownErrors.options}
                 </span>
               ) : (
-                `At least ${String(MIN_OPTIONS)} ${optionNoun}s.`
+                `At least ${String(MIN_OPTIONS)} ${noun}s.`
               )}
             </p>
             <div className="mt-3">
@@ -208,7 +231,7 @@ export function QuestionDialog({
                   setOptions((current) => [...current, optionField("")]);
                 }}
               >
-                Add {optionNoun}
+                Add {noun}
               </Button>
             </div>
           </fieldset>
