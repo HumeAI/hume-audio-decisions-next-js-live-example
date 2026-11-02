@@ -8,12 +8,14 @@ interface ContextFieldProps {
   onContextChange: (context: string) => void;
   /** Set while recording, since every chunk is sent with the same context. */
   disabled: boolean;
+  error: string | undefined;
 }
 
 export function ContextField({
   context,
   onContextChange,
   disabled,
+  error,
 }: ContextFieldProps) {
   const ids = useId();
 
@@ -57,9 +59,15 @@ export function ContextField({
         onChange={(event) => {
           onContextChange(event.target.value);
         }}
-        aria-describedby={`${ids}-hint`}
+        aria-invalid={error !== undefined}
+        aria-describedby={error ? `${ids}-hint ${ids}-error` : `${ids}-hint`}
         className={`block ${FIELD_CLASS_NAME} resize-none disabled:opacity-60`}
       />
+      {error && (
+        <p id={`${ids}-error`} className="text-sm text-danger">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

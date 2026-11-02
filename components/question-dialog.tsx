@@ -2,6 +2,7 @@ import { type SubmitEvent, useId, useState } from "react";
 
 import {
   buildQuestion,
+  MAX_OPTIONS,
   MIN_OPTIONS,
   type NamedQuestion,
   optionNoun,
@@ -57,6 +58,7 @@ export function QuestionDialog({
   const fieldIds = useId();
 
   const usesOptions = type !== "noul";
+  const maxOptions = type === "noul" ? 0 : MAX_OPTIONS[type];
   const noun = optionNoun(type);
   const optionTexts = options.map((option) => option.text.trim());
   const errors = questionErrors(
@@ -216,11 +218,12 @@ export function QuestionDialog({
               {shownErrors.options ? (
                 <span className="text-danger">{shownErrors.options}</span>
               ) : (
-                `At least ${String(MIN_OPTIONS)} ${noun}s.`
+                `${String(MIN_OPTIONS)} to ${String(maxOptions)} ${noun}s.`
               )}
             </p>
             <div className="mt-3">
               <Button
+                disabled={options.length >= maxOptions}
                 onClick={() => {
                   setOptions((current) => [...current, optionField("")]);
                 }}

@@ -20,6 +20,8 @@ function formatSeconds(ms: number): string {
 interface RecordingControlsProps {
   status: RecorderStatus;
   hasRecording: boolean;
+  /** False while a field would get the request rejected; that field says why. */
+  canRecord: boolean;
   isPlaying: boolean;
   durationMs: number;
   /** Where the playhead is, once the recording has been played or sought. */
@@ -34,6 +36,7 @@ interface RecordingControlsProps {
 export function RecordingControls({
   status,
   hasRecording,
+  canRecord,
   isPlaying,
   durationMs,
   positionMs,
@@ -68,7 +71,7 @@ export function RecordingControls({
       ) : (
         <Button
           variant="primary"
-          disabled={status === "starting"}
+          disabled={status === "starting" || !canRecord}
           onClick={handleRecord}
         >
           <DotFillIcon className="text-red-500" />

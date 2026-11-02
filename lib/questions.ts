@@ -24,6 +24,22 @@ export const QUESTION_TYPES: readonly QuestionType[] = [
 // The API rejects a choice or score question with fewer options.
 export const MIN_OPTIONS = 2;
 
+// The API's limits on a request, which has no moment questions here.
+export const MAX_QUESTIONS = 20;
+export const MAX_ID_CHARS = 256;
+export const MAX_INSTRUCTIONS_CHARS = 500;
+export const MAX_CONTEXT_CHARS = 1000;
+export const MAX_OPTIONS = { choice: 20, score: 10 } as const;
+export const MAX_OPTION_CHARS = { choice: 50, score: 150 } as const;
+
+/**
+ * Counts characters the way the API does, by Unicode code point. A string's
+ * `length` counts UTF-16 code units, so it counts an emoji as two.
+ */
+export function charCount(text: string): number {
+  return Array.from(text).length;
+}
+
 export const DEFAULT_CONTEXT = "Live microphone audio of one person speaking.";
 
 export const DEFAULT_QUESTIONS: NamedQuestion[] = [
@@ -114,22 +130,40 @@ export function questionErrors(
   const id = fields.id.trim();
   if (id === "") {
     errors.id = "Enter an ID.";
+  } else if (charCount(id) > MAX_ID_CHARS) {
+    errors.id = `Use at most ${String(MAX_ID_CHARS)} characters.`;
   } else if (takenIds.includes(id)) {
     errors.id = "Another question already uses this ID.";
   }
-  if (fields.instructions.trim() === "") {
+  const instructions = fields.instructions.trim();
+  if (instructions === "") {
     errors.instructions = "Enter a question.";
+  } else if (charCount(instructions) > MAX_INSTRUCTIONS_CHARS) {
+    errors.instructions = `Use at most ${String(MAX_INSTRUCTIONS_CHARS)} characters.`;
   }
   if (fields.type !== "noul") {
     const options = fields.options.map((option) => option.trim());
     const noun = optionNoun(fields.type);
-    if (options.includes("")) {
+    const maxOptions = MAX_OPTIONS[fields.type];
+    const maxChars = MAX_OPTION_CHARS[fields.type];
+    if (options.length > maxOptions) {
+      errors.options = `Use at most ${String(maxOptions)} ${noun}s.`;
+    } else if (options.includes("")) {
       errors.options = `Fill in every ${noun}.`;
+    } else if (options.some((option) => charCount(option) > maxChars)) {
+      errors.options = `Use at most ${String(maxChars)} characters in each ${noun}.`;
     } else if (new Set(options).size < options.length) {
       errors.options = `Each ${noun} must be different.`;
     }
   }
   return errors;
+}
+
+/** What stops the context from being sent, if anything. */
+export function contextError(context: string): string | undefined {
+  return charCount(context.trim()) > MAX_CONTEXT_CHARS
+    ? `Use at most ${MAX_CONTEXT_CHARS.toLocaleString("en-US")} characters.`
+    : undefined;
 }
 
 /** The `request` part sent with every chunk of a recording. */

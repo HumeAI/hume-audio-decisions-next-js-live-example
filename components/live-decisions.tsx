@@ -3,7 +3,11 @@
 import { usePlayback } from "@/hooks/use-playback";
 import { useRecorder } from "@/hooks/use-recorder";
 import { useStoredState } from "@/hooks/use-stored-state";
-import { DEFAULT_CONTEXT, DEFAULT_QUESTIONS } from "@/lib/questions";
+import {
+  contextError,
+  DEFAULT_CONTEXT,
+  DEFAULT_QUESTIONS,
+} from "@/lib/questions";
 import { latestSettledChunk } from "@/lib/recording";
 
 import { AnswerPanel } from "./answer-panel";
@@ -38,6 +42,7 @@ export function LiveDecisions() {
   // the questions being edited, so neither changes shape when recording
   // starts.
   const shownQuestions = recording?.questions ?? questions;
+  const contextProblem = contextError(context);
 
   // While recording, the playhead marks the live edge, so the newest answers
   // show.
@@ -60,6 +65,7 @@ export function LiveDecisions() {
             context={context}
             onContextChange={setContext}
             disabled={isCapturing}
+            error={contextProblem}
           />
         }
       >
@@ -75,6 +81,7 @@ export function LiveDecisions() {
           <RecordingControls
             status={recorder.status}
             hasRecording={recording !== null}
+            canRecord={contextProblem === undefined}
             isPlaying={playback.isPlaying}
             durationMs={durationMs}
             positionMs={playback.playheadMs}

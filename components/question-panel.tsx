@@ -1,7 +1,7 @@
 import { PencilIcon, PlusIcon, XIcon } from "@primer/octicons-react";
 import { useId, useState } from "react";
 
-import type { NamedQuestion } from "@/lib/questions";
+import { MAX_QUESTIONS, type NamedQuestion } from "@/lib/questions";
 
 import { Button } from "./button";
 import { QuestionDialog } from "./question-dialog";
@@ -43,7 +43,7 @@ export function QuestionPanel({
         </h2>
         <Button
           variant="text"
-          disabled={disabled}
+          disabled={disabled || questions.length >= MAX_QUESTIONS}
           onClick={() => {
             setEditing("new");
           }}
@@ -99,8 +99,14 @@ export function QuestionPanel({
         ))}
       </ol>
 
-      {disabled && (
+      {disabled ? (
         <p className="mt-3 text-sm text-muted">Locked while recording.</p>
+      ) : (
+        questions.length >= MAX_QUESTIONS && (
+          <p className="mt-3 text-sm text-muted">
+            A request takes at most {MAX_QUESTIONS} questions.
+          </p>
+        )
       )}
 
       {editing !== null && (
