@@ -2,10 +2,7 @@ import type { Decisions } from "@humeai/audio-decisions";
 
 // Span questions answer with time ranges rather than a single value, so
 // they have no place on a timeline of 5-second answers.
-export type LiveQuestion = Exclude<
-  Decisions.Question,
-  Decisions.Question.Span
->;
+export type LiveQuestion = Exclude<Decisions.Question, Decisions.Question.Span>;
 
 export type QuestionType = LiveQuestion["type"];
 
