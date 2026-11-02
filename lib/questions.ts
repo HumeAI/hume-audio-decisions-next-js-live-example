@@ -1,11 +1,8 @@
 import type { Decisions } from "@humeai/audio-decisions";
 
-// Moment questions answer with time ranges rather than a single value, so
+// Span questions answer with time ranges rather than a single value, so
 // they have no place on a timeline of 5-second answers.
-export type LiveQuestion = Exclude<
-  Decisions.Question,
-  Decisions.Question.Moment
->;
+export type LiveQuestion = Exclude<Decisions.Question, Decisions.Question.Span>;
 
 export type QuestionType = LiveQuestion["type"];
 
@@ -24,7 +21,7 @@ export const QUESTION_TYPES: readonly QuestionType[] = [
 // The API rejects a choice or score question with fewer options.
 export const MIN_OPTIONS = 2;
 
-// The API's limits on a request, which has no moment questions here.
+// The API's limits on a request, which has no span questions here.
 export const MAX_QUESTIONS = 20;
 export const MAX_ID_CHARS = 256;
 export const MAX_INSTRUCTIONS_CHARS = 500;
