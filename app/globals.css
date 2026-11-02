@@ -1,1 +1,61 @@
 @import "tailwindcss";
+
+/* The theme script in the root layout sets `data-theme` before the page
+   paints, so `dark:` follows the theme button rather than the system. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --muted: #52525b;
+  --border: rgb(0 0 0 / 0.08);
+  --subtle: rgb(0 0 0 / 0.04);
+  --danger: var(--color-red-600);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --muted: #a1a1aa;
+  --border: rgb(255 255 255 / 0.145);
+  --subtle: #1a1a1a;
+  --danger: var(--color-red-400);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-subtle: var(--subtle);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-geist-sans);
+}
+
+@layer base {
+  /* Tailwind's preflight leaves borders in `currentColor`. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
+  }
+
+  /* Tailwind's preflight gives buttons the default cursor. */
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}

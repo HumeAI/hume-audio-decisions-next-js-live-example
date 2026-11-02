@@ -1,7 +1,11 @@
+import { Header } from "@/components/header";
+import { LiveDecisions } from "@/components/live-decisions";
+
 export default function Home() {
   return (
-    <main>
-      <h1>Answering live audio</h1>
-    </main>
+    <div className="flex h-dvh flex-col">
+      <Header />
+      <LiveDecisions />
+    </div>
   );
 }
