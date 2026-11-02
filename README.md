@@ -1,6 +1,6 @@
 # Live Audio Decisions
 
-A Next.js example that answers questions about live microphone audio with the [Audio Decisions API](https://dev.hume.ai/decisions/docs/overview). The app sends every 5 seconds of audio with your questions and shows each set of answers on a timeline under the waveform. The [cookbook guide](https://dev.hume.ai/decisions/cookbooks/answering-live-audio) walks through the code.
+A Next.js example that answers questions about live microphone audio with the [Audio Decisions API](https://dev.hume.ai/audio-decisions/docs/overview). The app sends every 5 seconds of audio with your questions and shows each set of answers on a timeline under the waveform. The [cookbook guide](https://dev.hume.ai/audio-decisions/cookbooks/answering-live-audio) walks through the code.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
@@ -45,7 +45,7 @@ A Next.js example that answers questions about live microphone audio with the [A
 2. Every 5 seconds of audio is sent with the questions. Answers appear on the timeline as they arrive, and the cards below show the newest answers in full.
 3. Press **Stop**, then click a chunk or the waveform to see that chunk's answers. **Play** replays the recording from the playhead.
 4. Pressing **Record** again asks before it clears the current audio and answers.
-5. Add, edit or remove questions and edit the optional **Context** between recordings. A question is `noul` (yes or no), `choice` or `score`. See [Writing questions](https://dev.hume.ai/decisions/docs/writing-questions). Questions and context are kept for the browser tab, so a refresh keeps them.
+5. Add, edit or remove questions and edit the optional **Context** between recordings. A question is `noul` (yes or no), `choice` or `score`. See [Writing questions](https://dev.hume.ai/audio-decisions/docs/writing-questions). Questions and context are kept for the browser tab, so a refresh keeps them.
 
 All questions in a request are answered together, so adding, removing or rewording one question can change the answers to the others.
 
@@ -55,7 +55,7 @@ All questions in a request are answered together, so adding, removing or rewordi
 2. Each chunk is one request, so a recording sends 12 requests a minute. Each organization can send 60 requests a minute, so about five recordings running at once reach the limit.
 3. A recording stops after 5 minutes, so it sends at most 60 requests.
 
-See [Limits](https://dev.hume.ai/decisions/docs/limits) for the rest.
+See [Limits](https://dev.hume.ai/audio-decisions/docs/limits) for the rest.
 
 ## How it works
 

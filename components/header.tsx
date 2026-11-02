@@ -23,7 +23,7 @@ export function Header() {
             </li>
             <li>
               <IconLink
-                href="https://dev.hume.ai/decisions/cookbooks/answering-live-audio"
+                href="https://dev.hume.ai/audio-decisions/cookbooks/answering-live-audio"
                 label="Cookbook guide"
               >
                 <BookIcon size={20} />
