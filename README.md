@@ -54,6 +54,7 @@ All questions in a request are answered together, so adding, removing or rewordi
 1. The API needs at least 5 seconds of audio in a request, so only full 5-second chunks are sent. Audio after the last full chunk is kept for playback only.
 2. Each chunk is one request, so a recording sends 12 requests a minute. Each organization can send 60 requests a minute, so about five recordings running at once reach the limit.
 3. A recording stops after 5 minutes, so it sends at most 60 requests.
+4. The question form and the **Context** field hold to the API's [limits on questions and context](https://dev.hume.ai/audio-decisions/docs/limits#questions-and-context): at most 20 questions, 20 options or 10 levels per question, and a length limit on each field. **Record** is off while the context is longer than 1,000 characters.
 
 See [Limits](https://dev.hume.ai/audio-decisions/docs/limits) for the rest.
 
